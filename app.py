@@ -207,9 +207,9 @@ async def homepage(request):
 
         answer = m.group(0)
 
-        answer_end_ind = m.span()[1] - 1
+        answer_end_ind = m.span()[1]
 
-        new_pref = f"{text[:end_pref+answer_end_ind + 1]}\n<|e|>"
+        new_pref = f"{text[:end_pref+answer_end_ind]}\n<|e|>"
 
         return UJSONResponse({"text": json.dumps(answer)}, headers=response_header)
 

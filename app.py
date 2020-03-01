@@ -126,7 +126,7 @@ async def homepage(request):
 
         char_name = params.get("character", "")
         input_orig = params.get("prefix", "").strip()
-        length_desired = 25
+        length_desired = 5
 
         if char_name:
             pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
@@ -139,47 +139,17 @@ async def homepage(request):
         # add end of answer, store length of prefix
         end_pref = len(pref)
 
-        # adding \n at the beginning as the first char disappears
-        context_tokens = enc.encode(pref)
-        l = len(context_tokens)
-        cprint(f"length: {l}")
+        # regex get our first answer, will be filled below
+        m = None
 
-        if l > 1023 - length_desired:
-            context_tokens = context_tokens[-(1023 - length_desired) :]
-            l = len(context_tokens)
-            end_pref = l
-            cprint(f"exceeding 1023 total tokens, trimmed length: {l}")
-
-        out = sess.run(
-            output, feed_dict={context: [context_tokens], length: length_desired}
-        )
-
-        text = enc.decode(out[0])
-
-        print()
-        cprint("raw output")
-        print(text)
-
-        # prefix riddance
-        l_no_pref = text[end_pref:]
-
-        print()
-        cprint("prefixless text:")
-        print(l_no_pref)
-
-        # regex get our first answer
-        m = regex.search(pref_re, l_no_pref)
         # past = time.time()
 
-        # security: if none, resample
+        # generation loop
         while not m:
 
             # length_desired *= 2
             cprint(f"regenerating! adding {length_desired} new tokens.")
-
-            # re-running, including the current bit !! adding initial \n as the
-            # first char disappears from the output
-            context_tokens = enc.encode(text)
+            context_tokens = enc.encode(pref)
             l = len(context_tokens)
             cprint(f"re-length: {l}")
             if l > 1023 - length_desired:
@@ -195,12 +165,12 @@ async def homepage(request):
                 feed_dict={context: 1 * [context_tokens], length: length_desired},
             )
 
-            text = enc.decode(out[0])
+            pref = enc.decode(out[0])
 
             cprint("raw re-output")
-            print(text)
+            print(pref)
 
-            l_no_pref = text[end_pref:]
+            l_no_pref = pref[end_pref:]
 
             cprint("prefixless re-text:")
             print(l_no_pref)
@@ -213,7 +183,7 @@ async def homepage(request):
 
         answer_end_ind = m.span()[1]
 
-        new_pref = f"{text[:end_pref+answer_end_ind]}\n<|e|>"
+        new_pref = f"{pref[:end_pref+answer_end_ind]}\n<|e|>"
 
         return UJSONResponse({"text": json.dumps(answer)}, headers=response_header)
 

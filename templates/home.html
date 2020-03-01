@@ -37,11 +37,6 @@ body {
     line-height: 1.25;
   }
 
-  //.gen-border {
-    //  height: 0.25em;
-    //  background-color: #d5d5d5;
-  //}
-
   .help {
     text-align: right;
   }
@@ -72,8 +67,6 @@ body {
     <meta name="title" content="Génération textuelle avec GPT-2" />
     <meta name="description" content="Génération textuelle avec GPT-2" />
 
-
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   </head>
@@ -101,11 +94,6 @@ body {
       <div class="navbar-end">
         <div class="navbar-item is-hidden-touch">
           <div class="buttons">
-            <!-- <a class="button is-light" href="" target="_blank"> -->
-            <!--   <span class="icon"> -->
-            <!--     <i class="fab fa-lg fa-github"></i> -->
-            <!--   </span><span>GitHub</span> -->
-            <!-- </a> -->
           </div>
         </div>
       </div>
@@ -184,13 +172,6 @@ body {
 
     <footer class="footer">
       <div class="content has-text-centered">
-        <!-- <p> -->
-        <!-- Made using <a href="https://github.com/minimaxir/gpt-2-simple" target="_blank"><strong>gpt-2-simple</strong></a> -->
-        <!-- and <a href="https://github.com/minimaxir/gpt-2-cloud-run" target="_blank"><strong>gpt-2-cloud-run</strong></a> -->
-        <!-- by <a href="https://minimaxir.com" target="_blank">Max Woolf</a>. Original GPT-2 model provided by <a -->
-        <!--                                    href="https://openai.com" target="_blank">OpenAI</a>. This website content -->
-        <!--                                  is licensed <a href="http://opensource.org/licenses/mit-license.php" target="_blank">MIT</a>. -->
-        <!-- </p> -->
       </div>
     </footer>
 
@@ -207,8 +188,10 @@ body {
   <script type="text/javascript">
     $(function () {
       $('#gen-form').submit(function (e) {
+
         e.preventDefault();
         const vals = getInputValues();
+
         $.ajax({
           type: "POST",
           url: "/",
@@ -218,16 +201,12 @@ body {
             $('#generate-text').addClass("is-loading");
             $('#generate-text').prop("disabled", true);
             $('#tutorial').remove();
-
             const chrct = `<div>${vals.character}</div>`;
             const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
             const prompt = `<div class="gen-box-right">${chrct}${blather}</div>`
-
             $('#character').val($('#character').attr('placeholder'));
-
             $('#prefix').val('');
             $('#prefix').attr('placeholder', '');
-
             $(prompt).appendTo('#model-output').hide().fadeIn("slow");
           },
           success: function (data) {
@@ -246,11 +225,10 @@ body {
             $(html).appendTo('#model-output').hide().fadeIn("slow");
           }
         });
+
       });
 
       $('#clear-text').click(function (e) {
-        // console.log('clear text');
-        // console.log(e);
         $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
         e.preventDefault();
         $('#model-output').text('')
@@ -284,32 +262,6 @@ body {
         }
       })
     });
-
-    //// https://stackoverflow.com/a/51478809
-    //function saveAs(uri, filename) {
-
-    //  var link = document.createElement('a');
-
-    //  if (typeof link.download === 'string') {
-
-    //    link.href = uri;
-    //    link.download = filename;
-
-    //    //Firefox requires the link to be in the body
-    //    document.body.appendChild(link);
-
-    //    //simulate click
-    //    link.click();
-
-    //    //remove the link when done
-    //    document.body.removeChild(link);
-
-    //  } else {
-
-    //    window.open(uri);
-
-    //  }
-    //}
 
   </script>
 

@@ -125,7 +125,7 @@ async def homepage(request):
 
         char_name = params.get("character", "")
         input_orig = params.get("prefix", "").strip()
-        length_desired = int(params.get("length", 1023))
+        length_desired = 25
 
         if char_name:
             pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
@@ -173,7 +173,7 @@ async def homepage(request):
         while not m:
 
             # length_desired *= 2
-            cprint(f"regenerating! new desired length: {length_desired}")
+            cprint(f"regenerating! adding {length_desired} new tokens.")
 
             # re-running, including the current bit !! adding initial \n as the
             # first char disappears from the output
@@ -192,6 +192,7 @@ async def homepage(request):
                 output,
                 feed_dict={context: 1 * [context_tokens], length: length_desired},
             )
+
             text = enc.decode(out[0])
 
             cprint("raw re-output")

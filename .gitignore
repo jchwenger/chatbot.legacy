@@ -7,3 +7,6 @@
 # model stuff
 checkpoint
 models
+
+# python cache
+**/__pycache__

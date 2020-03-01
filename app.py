@@ -12,6 +12,7 @@ import pprint
 import sample
 import model
 import regex
+import time
 import json
 import os
 import gc
@@ -168,6 +169,7 @@ async def homepage(request):
 
         # regex get our first answer
         m = regex.search(pref_re, l_no_pref)
+        # past = time.time()
 
         # security: if none, resample
         while not m:
@@ -204,6 +206,8 @@ async def homepage(request):
             print(l_no_pref)
 
             m = regex.search(pref_re, l_no_pref)
+
+        # cprint(f'time to produce answer: {time.time() - past}')
 
         answer = m.group(0)
 

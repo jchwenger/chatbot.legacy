@@ -1,1 +1,9 @@
 .vscode
+
+# vim files
+*.swp
+*.swo
+
+# model stuff
+checkpoint
+models

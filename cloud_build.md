@@ -8,7 +8,7 @@ This workflow moves the file from Google Compute Engine to Google Cloud Storage,
 
 First, create a bucket in Google Cloud Storage to save your model. Then give full scope permissions to your Google Compute Engine VM (you'll need to Stop and Edit it if it isn't already).
 
-![scope](/docs/scope.png)
+![scope](docs/scope.png)
 
 In the GCE VM, if you had to change the scope, you'll need to [remove the cached gsutil](https://stackoverflow.com/questions/28612080/resumableuploadabortexception-403-insufficient-permission):
 

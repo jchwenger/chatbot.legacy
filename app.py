@@ -3,7 +3,6 @@ from tensorflow.core.protobuf import rewriter_config_pb2
 from starlette.middleware.cors import CORSMiddleware
 from starlette.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
-from starlette.responses import UJSONResponse
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 import tensorflow as tf
@@ -192,8 +191,6 @@ async def generate(params):
 
     end_ind = m.span()[1]
     new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
-
-    # cprint(f'time to produce answer: {time.time() - past}')
 
 @app.websocket_route('/ws')
 async def websocket_endpoint(websocket):

@@ -61,6 +61,7 @@ ckpt = tf.train.latest_checkpoint("checkpoint/run1")
 saver = tf.compat.v1.train.Saver(allow_empty=True)
 sess.run(tf.compat.v1.global_variables_initializer())
 
+print('-'*40)
 print("Loading checkpoint", ckpt)
 saver.restore(sess, ckpt)
 
@@ -87,7 +88,8 @@ out = sess.run(output,
                    context: [context_tokens]
                })
 
-print(f'dummy run preformed: {enc.decode(out[0])}')
+print('-'*40)
+cprint(f'dummy run preformed: {enc.decode(out[0])}')
 
 # find first response in gpt stream
 pref_re = regex.compile(
@@ -118,8 +120,8 @@ async def generate(params):
     global end
     global pp
 
-    cprint("previous prefix:")
-    print(new_pref)
+    # cprint("previous prefix:")
+    # print(new_pref)
 
     char_name = params.get("character", "")
     input_orig = params.get("prefix", "").strip()
@@ -130,8 +132,8 @@ async def generate(params):
     else:
         pref = f"{new_pref}{start}{input_orig}{end}"
 
-    cprint("current prefix:")
-    print(pref)
+    # cprint("current prefix:")
+    # print(pref)
 
     # add end of answer, store length of prefix
     end_pref = len(pref)
@@ -145,10 +147,12 @@ async def generate(params):
     while not m:
 
         # length_desired *= 2
-        cprint(f"regenerating! adding {length_desired} new tokens.")
+        # cprint(f"generating! adding {length_desired} new tokens.")
+
         context_tokens = enc.encode(pref)
         l = len(context_tokens)
-        cprint(f"re-length: {l}")
+        # cprint(f"re-length: {l}")
+
         if l > 1023 - length_desired:
             context_tokens = context_tokens[-(1023 - length_desired) :]
             l = len(context_tokens)
@@ -167,23 +171,25 @@ async def generate(params):
         l_no_pref = pref[end_pref:]
         new_length = len(l_no_pref)
 
-        cprint("prefixless re-text:")
-        print(l_no_pref)
+        # cprint("prefixless re-text:")
+        # print(l_no_pref)
 
-        cprint("last bit of output:")
+        # cprint("last bit of output:")
         last_bit = l_no_pref[produced:]
-        print(last_bit)
+        # print(last_bit, end='')
         produced += new_length - produced
-        print(f'\t\t(produced now {produced} chars)')
 
         m = regex.search(r, l_no_pref)
 
         yield last_bit
 
-        cprint('\t\tsleeping hack')
+        # cprint('\t\tsleeping hack')
         await asyncio.sleep(1e-15)
 
-    cprint(f'found end marker.')
+    cprint('produced:')
+    print(l_no_pref)
+    print(f'found end marker. (produced {produced} chars)')
+
     end_ind = m.span()[1]
     new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
 

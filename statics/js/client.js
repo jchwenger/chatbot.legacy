@@ -4,6 +4,7 @@ $(() => {
     if ("WebSocket" in window) {
       const params = getInputValues();
       let ws = new WebSocket("ws://localhost:8080/ws");
+      console.log("Opening websocket connection");
       const reg = /\n*<\|*[se]*\|*>*\n*|\n*<*\|*[se]*\|*>\n*/g
       ws.onopen = () => {
         ws.send(JSON.stringify(params));
@@ -22,8 +23,8 @@ $(() => {
       ws.onmessage = (e) => {
         gentext = e.data.replace(reg, '');
         gentext = gentext.replace(/\n/g, "<br>");
-        console.log(e.data);
-        console.log(gentext);
+        // console.log('data:', e.data);
+        // console.log('edited:', gentext);
         $('.gen-box:last').append(gentext);
         // const html = `<div class="gen-box">${gentext}</div>`;
         // $(html).appendTo('#model-output').hide().fadeIn("slow");

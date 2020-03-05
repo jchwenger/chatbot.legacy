@@ -2,38 +2,40 @@ from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 from tensorflow.core.protobuf import rewriter_config_pb2
 from starlette.middleware.cors import CORSMiddleware
 from starlette.templating import Jinja2Templates
+from starlette.staticfiles import StaticFiles
 from starlette.responses import UJSONResponse
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 import tensorflow as tf
-import encoder
+import asyncio
 import uvicorn
-import pprint
+import encoder
 import sample
-import model
+import pprint
 import regex
-import time
+import model
 import json
-import os
 import gc
+import os
 
 pp = pprint.PrettyPrinter(indent=2)
-
 
 def cprint(x):
     print()
     print(x)
-    print("-" * len(x))
-
+    print('-'*len(x))
 
 # disabling some warnings
 os.environ["KMP_WARNINGS"] = "off"
 
-middleware = [Middleware(CORSMiddleware, allow_origins=["*"])]
+middleware = [
+        Middleware(CORSMiddleware, allow_origins=['*'])
+] 
 
 app = Starlette(debug=False, middleware=middleware)
+app.mount('/static', StaticFiles(directory='statics'), name='static')
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory='templates')
 
 
 config = tf.compat.v1.ConfigProto()
@@ -46,7 +48,7 @@ config.graph_options.rewrite_options.layout_optimizer = (
 #     config.intra_op_parallelism_threads = threads
 #     config.inter_op_parallelism_threads = threads
 
-sess = tf.compat.v1.Session(config=config)
+sess =  tf.compat.v1.Session(config=config)
 
 hparams = model.default_hparams()
 with open("checkpoint/run1/hparams.json") as f:
@@ -66,7 +68,7 @@ enc = encoder.get_encoder("run1")
 
 context = tf.compat.v1.placeholder(tf.int32, [1, None])
 length = tf.compat.v1.placeholder(tf.int32, ())
-context_tokens = enc.encode("A")
+context_tokens = enc.encode('A')
 
 output = sample.sample_sequence(
     hparams=hparams,
@@ -79,118 +81,136 @@ output = sample.sample_sequence(
     top_p=0,
 )
 
-out = sess.run(output, feed_dict={length: 1, context: [context_tokens]})
+out = sess.run(output,
+               feed_dict = {
+                   length: 1,
+                   context: [context_tokens]
+               })
 
-print(f"dummy run preformed: {enc.decode(out[0])}")
+print(f'dummy run preformed: {enc.decode(out[0])}')
 
 # find first response in gpt stream
-pref_re = regex.compile("(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL)
+pref_re = regex.compile(
+    "(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL
+)
 new_pref = ""
 
+start = '\n<|s|>\n'
+end = '\n<|e|>\n'
+
 # Needed to avoid cross-domain issues
-response_header = {"Access-Control-Allow-Origin": "*"}
+response_header = {
+    'Access-Control-Allow-Origin': '*'
+}
 
 generate_count = 0
 
-
-@app.route("/", methods=["GET", "POST", "HEAD"])
-async def homepage(request):
+async def generate(params):
 
     global generate_count
     global new_pref
     global pref_re
     global hparams
     global output
+    global start
     global sess
     global enc
+    global end
     global pp
 
-    if request.method == "GET":
+    cprint("previous prefix:")
+    print(new_pref)
 
-        new_pref = ""
-        params = request.query_params
-        return templates.TemplateResponse("home.html", {"request": request})
+    char_name = params.get("character", "")
+    input_orig = params.get("prefix", "").strip()
+    length_desired = 5
 
-    elif request.method == "POST":
+    if char_name:
+        pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
+    else:
+        pref = f"{new_pref}{start}{input_orig}{end}"
 
-        params = await request.json()
+    cprint("current prefix:")
+    print(pref)
 
-        cprint("params:")
-        pp.pprint(params)
+    # add end of answer, store length of prefix
+    end_pref = len(pref)
 
-        cprint("previous prefix:")
-        print(new_pref)
+    # regex get our first answer, will be filled below
+    m = None
+    r = regex.compile(r'<\|e\|>')
+    produced = 0
 
-        start = "\n<|s|>\n"
-        end = "\n<|e|>\n"
+    # generation loop
+    while not m:
 
-        char_name = params.get("character", "")
-        input_orig = params.get("prefix", "").strip()
-        length_desired = 5
-
-        if char_name:
-            pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
-        else:
-            pref = f"{new_pref}{start}{input_orig}{end}"
-
-        cprint("current prefix:")
-        print(pref)
-
-        # add end of answer, store length of prefix
-        end_pref = len(pref)
-
-        # regex get our first answer, will be filled below
-        m = None
-
-        # past = time.time()
-
-        # generation loop
-        while not m:
-
-            # length_desired *= 2
-            cprint(f"regenerating! adding {length_desired} new tokens.")
-            context_tokens = enc.encode(pref)
+        # length_desired *= 2
+        cprint(f"regenerating! adding {length_desired} new tokens.")
+        context_tokens = enc.encode(pref)
+        l = len(context_tokens)
+        cprint(f"re-length: {l}")
+        if l > 1023 - length_desired:
+            context_tokens = context_tokens[-(1023 - length_desired) :]
             l = len(context_tokens)
-            cprint(f"re-length: {l}")
-            if l > 1023 - length_desired:
-                context_tokens = context_tokens[-(1023 - length_desired) :]
-                l = len(context_tokens)
-                end_pref = l
-                cprint(
-                    f"exceeding 1023 total tokens in regenerating, trimmed length: {l}"
-                )
-
-            out = sess.run(
-                output,
-                feed_dict={context: 1 * [context_tokens], length: length_desired},
+            end_pref = l
+            cprint(
+                f"exceeding 1023 total tokens in regenerating, trimmed length: {l}"
             )
 
-            pref = enc.decode(out[0])
+        out = sess.run(
+            output,
+            feed_dict={context: 1 * [context_tokens], length: length_desired},
+        )
 
-            cprint("raw re-output")
-            print(pref)
+        pref = enc.decode(out[0])
 
-            l_no_pref = pref[end_pref:]
+        l_no_pref = pref[end_pref:]
+        new_length = len(l_no_pref)
 
-            cprint("prefixless re-text:")
-            print(l_no_pref)
+        cprint("prefixless re-text:")
+        print(l_no_pref)
 
-            m = regex.search(pref_re, l_no_pref)
+        cprint("last bit of output:")
+        last_bit = l_no_pref[produced:]
+        print(last_bit)
+        produced += new_length - produced
+        print(f'\t\t(produced now {produced} chars)')
 
-        # cprint(f'time to produce answer: {time.time() - past}')
+        m = regex.search(r, l_no_pref)
 
-        answer = m.group(0)
+        yield last_bit
 
-        answer_end_ind = m.span()[1]
+        cprint('\t\tsleeping hack')
+        await asyncio.sleep(1e-15)
 
-        new_pref = f"{pref[:end_pref+answer_end_ind]}\n<|e|>"
+    cprint(f'found end marker.')
+    end_ind = m.span()[1]
+    new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
 
-        return UJSONResponse({"text": json.dumps(answer)}, headers=response_header)
+    # cprint(f'time to produce answer: {time.time() - past}')
 
-    elif request.method == "HEAD":
-        return UJSONResponse({"text": ""}, headers=response_header)
+@app.websocket_route('/ws')
+async def websocket_endpoint(websocket):
+    await websocket.accept()
+    cprint('messages from socket')
+    params = await websocket.receive_json()
+    cprint('params')
+    pp.pprint(params)
+    async for answer in generate(params):
+        await websocket.send_text(answer)
+    await websocket.close()
 
-    generate_count += 1
+@app.route("/", methods=["GET"])
+async def homepage(request):
+
+    # global generate_count
+
+    new_pref = ""
+    params = request.query_params
+
+    return templates.TemplateResponse("home.html", {"request": request})
+
+    # generate_count += 1
 
     # if generate_count == 8:
     #     # Reload model to prevent Graph/Session from going OOM
@@ -201,8 +221,6 @@ async def homepage(request):
     #     generate_count = 0
 
     gc.collect()
-    return UJSONResponse({"text": text}, headers=response_header)
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

@@ -1,0 +1,56 @@
+html,
+body {
+  height: 95% !important;
+  margin: 0 !important;
+}
+
+footer {
+  /*max-height: 5% !important;*/
+  padding: 1em !important
+}
+
+section {
+  min-height: 95% !important
+}
+
+.gen-box {
+  background-color: #fff;
+  display: block;
+  padding: 1.25rem;
+  color: #4a4a4a;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.gen-box-right {
+  text-align: right;
+  background-color: #fff;
+  display: block;
+  padding: 1.25rem;
+  color: #4a4a4a;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.help {
+  text-align: right;
+}
+.gen-box.warning {
+  color: red;
+  font-weight: 700;
+}
+
+.brand-text {
+  display: flex;
+  align-items: center;
+  font-size: 1.5em
+}
+
+#extra-buttons {
+  padding-top: 1em;
+  margin-top: 1em;
+  border-top: 0.5px solid #d5d5d5;
+}
+

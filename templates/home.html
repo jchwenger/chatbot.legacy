@@ -1,63 +1,5 @@
 <!DOCTYPE html>
 
-<style>
-html,
-body {
-  height: 95% !important;
-  margin: 0 !important;
-}
-
-  footer {
-    /*max-height: 5% !important;*/
-    padding: 1em !important
-  }
-
-  section {
-    min-height: 95% !important
-  }
-
-  .gen-box {
-    background-color: #fff;
-    display: block;
-    padding: 1.25rem;
-    color: #4a4a4a;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.25;
-  }
-
-  .gen-box-right {
-    text-align: right;
-    background-color: #fff;
-    display: block;
-    padding: 1.25rem;
-    color: #4a4a4a;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.25;
-  }
-
-  .help {
-    text-align: right;
-  }
-  .gen-box.warning {
-    color: red;
-    font-weight: 700;
-  }
-
-  .brand-text {
-    display: flex;
-    align-items: center;
-    font-size: 1.5em
-  }
-
-  #extra-buttons {
-    padding-top: 1em;
-    margin-top: 1em;
-    border-top: 0.5px solid #d5d5d5;
-  }
-</style>
-
 <html>
 
   <head>
@@ -68,6 +10,7 @@ body {
     <meta name="description" content="Génération textuelle avec GPT-2" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="{{ url_for('static',  path='/css/style.css') }}">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   </head>
   <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -80,17 +23,12 @@ body {
       </span>
       <div class="brand-text is-family-code is-uppercase has-text-weight-bold">THÉÂTRE CLASSIQUE</div>
     </div>
-
     <div id="navbarBasicExample" class="navbar-menu is-active">
       <div class="navbar-start">
-
-
         <div class="navbar-item">
           Génération textuelle avec GPT-2.
         </div>
-
       </div>
-
       <div class="navbar-end">
         <div class="navbar-item is-hidden-touch">
           <div class="buttons">
@@ -105,32 +43,32 @@ body {
       <div class="container">
         <div class="columns is-variable is-5">
           <div class="column is-narrow" style="width: 30%;">
-              <form id="gen-form">
-                <div class="buttons">
-                  <span class="control">
-                    <button type="submit" name="submit" id="generate-text" class="button is-link">
-                      <span class="icon">
-                        <i class="fas fa-md fa-pen"></i>
-                      </span><span>Générer!</span>
-                    </button>
-                    <button id="clear-text" class="button is-danger">
-                      <span class="icon">
-                        <i class="fas fa-md fa-trash-alt"></i>
-                      </span><span>Effacer.</span>
-                    </button>
-                  </span>
+            <form id="gen-form">
+              <div class="buttons">
+                <span class="control">
+                  <button type="submit" name="submit" id="generate-text" class="button is-link">
+                    <span class="icon">
+                      <i class="fas fa-md fa-pen"></i>
+                    </span><span>Générer!</span>
+                  </button>
+                  <button id="clear-text" class="button is-danger">
+                    <span class="icon">
+                      <i class="fas fa-md fa-trash-alt"></i>
+                    </span><span>Effacer.</span>
+                  </button>
+                </span>
+              </div>
+              <div class="field">
+                <label class="label">Ton personnage:</label>
+                <div class="control">
+                  <textarea id="character" class="textarea" type="text" placeholder="LE COMTE." rows="1"></textarea>
                 </div>
-                <div class="field">
-                  <label class="label">Ton personnage:</label>
-                  <div class="control">
-                    <textarea id="character" class="textarea" type="text" placeholder="LE COMTE." rows="1"></textarea> 
-                  </div>
-                  <p class="help">Qui es-tu ?</p>
-                  <label class="label">Ton texte:</label>
-                  <div class="control">
-                    <textarea id="prefix" class="textarea" type="text" placeholder="Enfin vous l'emportez, et la faveur du Roi&#10;Vous élève en un rang qui n'était dû qu'à moi,&#10;Il vous fait Gouverneur du Prince de Castille." rows="2"></textarea>
-                  </div>
-                  <p class="help">Génère la suite en pressant Ctrl+Enter.<br></p>
+                <p class="help">Qui es-tu ?</p>
+                <label class="label">Ton texte:</label>
+                <div class="control">
+                  <textarea id="prefix" class="textarea" type="text" placeholder="Enfin vous l'emportez, et la faveur du Roi&#10;Vous élève en un rang qui n'était dû qu'à moi,&#10;Il vous fait Gouverneur du Prince de Castille." rows="2"></textarea>
+                </div>
+                <p class="help">Génère la suite en pressant Ctrl+Enter.<br></p>
               </div>
             </form>
           </div>
@@ -139,15 +77,12 @@ body {
           </div>
         </div>
       </div>
-
-
     </section>
 
     <footer class="footer">
       <div class="content has-text-centered">
       </div>
     </footer>
-
 
   </body>
 
@@ -158,84 +93,6 @@ body {
   <script src="http://html2canvas.hertzen.com/dist/html2canvas.min.js">
   </script>
 
-  <script type="text/javascript">
-    $(function () {
-      $('#gen-form').submit(function (e) {
-
-        e.preventDefault();
-        const vals = getInputValues();
-
-        $.ajax({
-          type: "POST",
-          url: "/",
-          dataType: "json",
-          data: JSON.stringify(vals),
-          beforeSend: function (data) {
-            $('#generate-text').addClass("is-loading");
-            $('#generate-text').prop("disabled", true);
-            $('#tutorial').remove();
-            const chrct = `<div>${vals.character}</div>`;
-            const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
-            const prompt = `<div class="gen-box-right">${chrct}${blather}</div>`
-            $('#character').val($('#character').attr('placeholder'));
-            $('#prefix').val('');
-            $('#prefix').attr('placeholder', '');
-            $(prompt).appendTo('#model-output').hide().fadeIn("slow");
-          },
-          success: function (data) {
-            $('#generate-text').removeClass("is-loading");
-            $('#generate-text').prop("disabled", false);
-            let gentext = JSON.parse(data.text);
-            gentext = gentext.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
-            const html = `<div class="gen-box">${gentext}</div>`;
-            $(html).appendTo('#model-output').hide().fadeIn("slow");
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            $('#generate-text').removeClass("is-loading");
-            $('#generate-text').prop("disabled", false);
-            $('#tutorial').remove();
-            const html = '<div class="gen-box warning">There was an error generating the text! Please try again!</div><div class="gen-border"></div>';
-            $(html).appendTo('#model-output').hide().fadeIn("slow");
-          }
-        });
-
-      });
-
-      $('#clear-text').click(function (e) {
-        $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
-        e.preventDefault();
-        $('#model-output').text('')
-        $.ajax({
-          type: "GET",
-          url: "/"
-        });
-      });
-
-    });
-
-    function getInputValues() {
-      const inputs = {};
-      $("textarea, input").each(function () {
-        const v = $(this).val();
-        if (v){ 
-          inputs[$(this).attr('id')] = $(this).val();
-        } else {
-          inputs[$(this).attr('id')] = $(this).attr('placeholder');
-        }
-      });
-      return inputs;
-    }
-
-    // Make sure this code gets executed after the DOM is loaded.
-    document.querySelectorAll("#prefix,#character").forEach(el => {
-      el.addEventListener("keyup", event => {
-        if (event.key == "Enter" && event.ctrlKey) {
-          document.querySelector("#generate-text").click();
-          return;
-        }
-      })
-    });
-
-  </script>
+  <script src="{{ url_for('static', path='/js/client.js') }}"></script>
 
 </html>

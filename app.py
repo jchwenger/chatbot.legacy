@@ -187,7 +187,7 @@ async def generate(params):
 
     cprint('produced:')
     print(l_no_pref)
-    print(f'found end marker. (produced {produced} chars)')
+    cprint(f'found end marker. (produced {produced} chars)')
 
     end_ind = m.span()[1]
     new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
@@ -195,9 +195,8 @@ async def generate(params):
 @app.websocket_route('/ws')
 async def websocket_endpoint(websocket):
     await websocket.accept()
-    cprint('messages from socket')
     params = await websocket.receive_json()
-    cprint('params')
+    cprint('params from socket:')
     pp.pprint(params)
     async for answer in generate(params):
         await websocket.send_text(answer)
@@ -207,9 +206,6 @@ async def websocket_endpoint(websocket):
 async def homepage(request):
 
     # global generate_count
-
-    new_pref = ""
-    params = request.query_params
 
     return templates.TemplateResponse("home.html", {"request": request})
 

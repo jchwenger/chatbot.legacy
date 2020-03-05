@@ -17,22 +17,36 @@ Since Cloud Run is stateless without access to local storage, you must bundle th
 Then build the image:
 
 ```shell
-docker build . -t gpt2
+docker build . -t IMAGE-NAME
 ```
 
 If you want to test the image locally with the same specs as Cloud Run, you can run:
 
 ```shell
-docker run -p 8080:8080 --memory="2g" --cpus="1" gpt2
+docker run -p 8080:8080 --memory="2g" --cpus="1" IMAGE-NAME
 ```
 
 You can then visit/`curl` http://0.0.0.0:8080 to get generated text!
 
 Then, tag the image and upload it to the Google [Container Registry](https://console.cloud.google.com/kubernetes/images/list) (note, this will take awhile due to the image size!):
 
+--- 
+
+### TO DO:
+
+How to create a project.
+
+How to download gcloud & authenticate.
+
+How to use docker to tag and pull images.
+
+Enable the container registry api.
+
+--- 
+
 ```shell
-docker tag gpt2 gcr.io/[PROJECT-ID]/gpt2
-docker push gcr.io/[PROJECT-ID]/gpt2
+docker tag IMAGE-NAME gcr.io/[PROJECT-ID]/IMAGE-NAME
+docker push gcr.io/[PROJECT-ID]/IMAGE-NAME
 ```
 
 Once done, deploy the uploaded image to Cloud Run via [the console](https://console.cloud.google.com/run). **Set Memory Allocated to 2 GB and Maximum Requests Per Container to 1**!

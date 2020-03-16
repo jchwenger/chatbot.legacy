@@ -1,13 +1,13 @@
 $(() => {
 
-  const regexStart = /<\|s\|*\>*|<*\|*s\|>/g;
-  const regexEnd = /<\|e\|*\>*|<*\|*e\|>/g;
+  const regexStart = /<\|s\|*\>*\n*|<*\|*s\|>\n*/g;
+  const regexEnd = /\n<\|e\|*\>*|\n*<*\|*e\|>/g;
   const regexElse = /<\|*|\|*>/;
 
   $('#gen-form').submit(function (e) {
     e.preventDefault();
     const vals = getInputValues();
-    console.log('vals:', vals);
+    // console.log('vals:', vals);
     generate(vals);
 
   });
@@ -39,30 +39,34 @@ $(() => {
         }
       },
       success: function (data) {
-        console.log(data);
         const answer = JSON.parse(data.text);
-        console.log(answer);
+        console.log("data:", data);
+        console.log("parsed answer:", answer);
         let recall = true;
         let gentext = "";
-        if (regexStart.test(answer)) {
+        testStart = regexStart.test(answer);
+        console.log("test start", testStart);
+        if (testStart) {
+          console.log("regex start found");
           gentext = answer
             .replace(regexStart, "")
             .replace(/\n/g, "<br>");
-          console.log("regex start found");
-          console.log("data:", data);
+          gentext = newLineHack(gentext);
           console.log("edited:", gentext);
         } else if (regexEnd.test(answer)) {
-          gentext = answer
-            .replace(regexEnd, "")
-            .replace(/\n/g, "<br>");
           console.log("regex end found");
-          console.log("data:", data);
+          regexEnd.lastIndex = 0; // reset index
+          gentext = answer.substring(0, regexEnd.exec(answer).index);
+          gentext = gentext.replace(/\n/g, "<br>");
           console.log("edited:", gentext);
           recall = false;
         } else {
+          console.log("generating thru");
           gentext = answer
-            .replace(regexElse, "")
-            .replace(/\n/g, "<br>");
+            .replace(regexElse, "");
+          // hack for riddance of \n before char name
+          gentext = newLineHack(gentext);
+          console.log("edited:", gentext);
         }
 
         $(".gen-box:last").append(gentext);
@@ -77,7 +81,7 @@ $(() => {
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        console.log("ajax error");
+        console.log("ajax error:");
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
@@ -92,57 +96,18 @@ $(() => {
     });
   }
 
-    // $('#gen-form').submit(function (e) {
-    //   e.preventDefault();
-    //   if ("WebSocket" in window) {
-    //     const params = getInputValues();
-    //     let ws = new WebSocket("ws://0.0.0.0:8080/ws");
-    //     console.log("Opening websocket connection");
-    //     const reg = /\n*<\|*[se]*\|*>*\n*|\n*<*\|*[se]*\|*>\n*/g
-    //     ws.onopen = () => {
-
-    //     // ws.send(JSON.stringify(params));
-    //     $('#generate-text').addClass("is-loading");
-    //     $('#generate-text').prop("disabled", true);
-    //     $('#tutorial').remove();
-    //     const chrct = `<div>${params.character}</div>`;
-    //     const blather = params.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
-    //     const prompt = `<div class="gen-box-right">${chrct}${blather}</div>`
-    //     $('#character').val($('#character').attr('placeholder'));
-    //     $('#prefix').val('');
-    //     $('#prefix').attr('placeholder', '');
-    //     $(prompt).appendTo('#model-output').hide().fadeIn("slow");
-    //     $('<div class="gen-box"></div>').appendTo('#model-output');
-
-    //   };
-    //   ws.onmessage = (e) => {
-    //     gentext = e.data.replace(reg, '');
-    //     gentext = gentext.replace(/\n/g, "<br>");
-    //     // console.log('data:', e.data);
-    //     // console.log('edited:', gentext);
-    //     $('.gen-box:last').append(gentext);
-    //     // const html = `<div class="gen-box">${gentext}</div>`;
-    //     // $(html).appendTo('#model-output').hide().fadeIn("slow");
-    //   };
-    //   ws.onclose = () => {
-    //     console.log("Closing websocket connection");
-    //     $('#generate-text').removeClass("is-loading");
-    //     $('#generate-text').prop("disabled", false);
-    //   };
-    //   ws.onerror = (jqXHR, textStatus, errorThrown) => {
-    //     console.log(`jqXHR ${jqXHR}`);
-    //     console.log(`textStatus: ${textStatus}`);
-    //     console.log(`errorThrown: ${errorThrown}`);
-    //     $('#generate-text').removeClass("is-loading");
-    //     $('#generate-text').prop("disabled", false);
-    //     // const html = '<div class="gen-box warning">There was an error generating the text! Please try again!</div><div class="gen-border"></div>';
-    //     // $(html).appendTo('#model-output').hide().fadeIn("slow");
-    //   };
-    // } else {
-    //   alert("WebSockets not supported in your browser, please use the latest Firefox, Chrome, or similar!");
-    // }
-  // });
-
+  function newLineHack(gentext) {
+    // hack for riddance of \n before char name
+    if (gentext == gentext.toUpperCase()) {
+      console.log('(gentext upper case trick)');
+      gentext = gentext.replace(/^\n/, "")
+        .replace(/\n/g, "<br>");
+    } else {
+      console.log('(no gentext upper case trick)');
+      gentext = gentext.replace(/\n/g, "<br>");
+    }
+    return gentext;
+  }
   $('#clear-text').click(function (e) {
     $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
     e.preventDefault();

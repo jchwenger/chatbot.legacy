@@ -104,7 +104,7 @@ start = "\n<|s|>\n"
 end = "\n<|e|>\n"
 
 # regex to find that we reached the end of our answer
-r = regex.compile(r"<\|e|e\|>")
+r = regex.compile(r"\n<\|e")
 produced = 0
 
 # Needed to avoid cross-domain issues
@@ -155,7 +155,7 @@ def generate(params):
 
     # checks for length, in case input is very long
     if l > 1023 - length_desired:
-        context_tokens = context_tokens[-(1023 - length_desired) :]
+        context_tokens = context_tokens[-(1023 - length_desired):]
         l = len(context_tokens)
         end_pref = l
         cprint(
@@ -181,7 +181,7 @@ def generate(params):
     if m:
         cprint('found end marker')
         print(l_no_pref)
-        end_ind = m.span()[1]
+        end_ind = m.span()[0]
         new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
     else:
         new_pref = pref
@@ -193,9 +193,11 @@ def generate(params):
 @app.route("/", methods=("GET", "HEAD", "POST"))
 async def homepage(request):
 
+    global new_pref
     # global generate_count
 
     if request.method in  ("GET", "HEAD"):
+        new_pref = ""
         return templates.TemplateResponse("home.html", {"request": request})
     elif request.method == "POST":
         params = await request.json()

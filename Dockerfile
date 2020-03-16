@@ -19,6 +19,6 @@ COPY templates /templates
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV PYTHONPATH "${PYTHONPATH}:src"
-# ENV FORWARDED_ALLOW_IPS "0.0.0.0"
+ENV FORWARDED_ALLOW_IPS "0.0.0.0"
 
 ENTRYPOINT ["python3", "-X", "utf8", "app.py"]

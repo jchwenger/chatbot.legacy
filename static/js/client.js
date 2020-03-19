@@ -36,6 +36,7 @@ $(() => {
           $('#prefix').attr('placeholder', '');
           // create empty div to receive our answer
           $('<div class="gen-box"></div>').appendTo("#model-output");
+          adjustScroll();
         }
       },
       success: function (data) {
@@ -70,6 +71,7 @@ $(() => {
         }
 
         $(".gen-box:last").append(gentext);
+        adjustScroll();
 
         if (recall) {
           const newVals = { "prefix" : "" };
@@ -94,6 +96,10 @@ $(() => {
         // $(html).appendTo('#model-output').hide().fadeIn("slow");
       }
     });
+  }
+
+  function adjustScroll() {
+    document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
   }
 
   function newLineHack(gentext) {

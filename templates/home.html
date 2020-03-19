@@ -14,39 +14,52 @@
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   </head>
 
-  <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
+  <nav class="my-navbar" role="navigation" aria-label="main navigation">
+    <div class="nav-title">
       <span class="icon is-large">
         <span class="fa-stack">
           <i class="fas fa-circle fa-stack-2x"></i>
           <i class="fas fa-robot fa-stack-1x fa-inverse"></i>
         </span>
       </span>
-      <div class="brand-text is-family-code is-uppercase has-text-weight-bold">THÉÂTRE CLASSIQUE</div>
-      <!-- <div class="navbar-item">Génération textuelle avec GPT-2.</div> -->
-    </div>
-    <div id="navbarBasicExample" class="navbar-menu is-active">
-      <div class="navbar-start">
-        <!-- <div class="navbar-item"> -->
-        <!--   Génération textuelle avec GPT-2. -->
-        <!-- </div> -->
-      </div>
-      <div class="navbar-end">
-        <div class="navbar-item is-hidden-touch">
-          <div class="buttons">
-          </div>
-        </div>
-      </div>
+      <div class="title-text">THÉÂTRE CLASSIQUE</div>
     </div>
   </nav>
 
+  <!-- <nav class="navbar" role="navigation" aria-label="main navigation"> -->
+  <!--   <div class="navbar-brand"> -->
+  <!--     <span class="icon is-large"> -->
+  <!--       <span class="fa-stack"> -->
+  <!--         <i class="fas fa-circle fa-stack-2x"></i> -->
+  <!--         <i class="fas fa-robot fa-stack-1x fa-inverse"></i> -->
+  <!--       </span> -->
+  <!--     </span> -->
+  <!--     <div class="brand-text is-family-code is-uppercase has-text-weight-bold">THÉÂTRE CLASSIQUE</div> -->
+  <!--     <!-1- <div class="navbar-item">Génération textuelle avec GPT-2.</div> -1-> -->
+  <!--   </div> -->
+  <!--   <div id="navbarBasicExample" class="navbar-menu is-active"> -->
+  <!--     <div class="navbar-start"> -->
+  <!--       <!-1- <div class="navbar-item"> -1-> -->
+  <!--       <!-1-   Génération textuelle avec GPT-2. -1-> -->
+  <!--       <!-1- </div> -1-> -->
+  <!--     </div> -->
+  <!--     <div class="navbar-end"> -->
+  <!--       <div class="navbar-item is-hidden-touch"> -->
+  <!--         <div class="buttons"> -->
+  <!--         </div> -->
+  <!--       </div> -->
+  <!--     </div> -->
+  <!--   </div> -->
+  <!-- </nav> -->
+
   <body>
 
-    <section id="main" class="section">
+    <!-- <section id="main" class="section"> -->
+    <section id="main">
 
       <div class="container">
 
-        <div class="model-output-container">
+        <div id="output" class="model-output-container">
 
           <div id="model-output" class="subtitle"></div>
 
@@ -76,15 +89,15 @@
 
                   <button type="submit" name="submit" id="generate-text" class="buttonz model-generate">
                   <!-- <button type="submit" name="submit" id="generate-text" class="button is-outlined is-block is-link is-large"> -->
-                    <span class="icon">
-                      <i class="fas fa-md fa-pen"></i>
-                    </span>
+                  <span class="icon">
+                    <i class="fas fa-md fa-pen"></i>
+                  </span>
                   </button>
                   <button id="clear-text" class="buttonz model-reset">
                   <!-- <button id="clear-text" class="button is-outlined is-block is-danger is-large"> -->
-                    <span class="icon">
-                      <i class="fas fa-md fa-redo-alt"></i>
-                    </span>
+                  <span class="icon">
+                    <i class="fas fa-md fa-redo-alt"></i>
+                  </span>
                   </button>
 
                 </div>

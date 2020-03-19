@@ -1,16 +1,56 @@
 html,
 body {
-  height: 95% !important;
+  height: 100% !important;
   margin: 0 !important;
 }
 
-footer {
-  /*max-height: 5% !important;*/
-  padding: 1em !important
-}
+/*footer {*/
+/*  /*max-height: 5% !important;*/*/
+/*  padding: 1em !important*/
+/*}*/
 
 section {
   min-height: 95% !important
+}
+
+.navbar {
+  /* overflow: hidden; */
+}
+
+.my-navbar {
+  box-shadow: 0 8px 16px rgba(10,10,10,.1);
+  height: 10%;
+  /* overflow: hidden; */
+}
+
+.nav-title {
+  align-items: stretch;
+  display: flex;
+  flex-shrink: 0;
+  min-height: 3.25rem;
+}
+
+#main {
+  height: 90%;
+}
+
+.container {
+  height: inherit;
+}
+
+.model-output-container {
+  width: 80%;
+  padding-top: 2%;
+  padding-left: 20%;
+  height: 55%;
+  position: fixed;
+  left: 0;
+  vertical-align: bottom;
+  overflow: auto;
+}
+
+#model-output {
+  width: 85%;
 }
 
 .gen-box {
@@ -35,13 +75,16 @@ section {
 }
 
 .control-panel {
-  width: 80%;
+  width: 60%;
   padding-top: 5px;
-  padding-left: 20%;
   background: white;
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 20%;
+}
+
+#gen-form {
+  box-shadow: 0 -8px 16px rgba(10,10,10,.1);
 }
 
 .control {
@@ -52,19 +95,6 @@ section {
 .textarea {
   border-color: rgb(181, 181, 181);
   /* display: inline; */
-}
-
-.model-output-container {
-  width: 80%;
-  padding-top: 2%;
-  padding-left: 20%;
-  position: fixed;
-  left: 0;
-  vertical-align: bottom;
-}
-
-#model-output {
-  width: 85%;
 }
 
 .text-controls {
@@ -103,7 +133,6 @@ section {
   display: inline-flex;
   font-size: 1rem;
   height: 2.95em;
-  justify-content: flex-start;
   line-height: 1.5;
   user-select: none;
   /* margin: 0px 0px; */
@@ -144,12 +173,11 @@ section {
 /*   color: rgb(255, 255, 255); */
 /* } */
 
-.buttonz .icon {
+.icon {
   height: 1.5em;
   width: 1.5em;
   align-items: center;
   display: inline-flex;
-  justify-content: center;
   font-size: 1.5rem;
 }
 
@@ -157,6 +185,16 @@ section {
   /* display: inline; */
   /* writing-mode: vertical-rl; */
   text-align: right;
+}
+
+.title-text {
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  font-size: 1.5rem;
+  font-family: monospace !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
 }
 
 .brand-text {
@@ -178,7 +216,7 @@ section {
   }
   .control-panel {
     width: 100%;
-    padding-left: 0%;
+    left: 0;
   }
   #model-output {
     width: 100%;

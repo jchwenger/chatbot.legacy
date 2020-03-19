@@ -24,14 +24,13 @@ pp = pprint.PrettyPrinter(indent=2)
 def cprint(x):
     print()
     print(x)
-    print('-'*len(x))
+    print("-" * len(x))
+
 
 # disabling some warnings
 os.environ["KMP_WARNINGS"] = "off"
 
-middleware = [
-        Middleware(CORSMiddleware, allow_origins=["*"])
-]
+middleware = [Middleware(CORSMiddleware, allow_origins=["*"])]
 
 app = Starlette(debug=False, middleware=middleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -85,19 +84,13 @@ output = sample.sample_sequence(
     top_p=0,
 )
 
-out = sess.run(output,
-               feed_dict = {
-                   length: 1,
-                   context: [context_tokens]
-               })
+out = sess.run(output, feed_dict={length: 1, context: [context_tokens]})
 
 print("-" * 40)
 cprint(f"dummy run preformed: {enc.decode(out[0])}")
 
 # find first response in gpt stream
-pref_re = regex.compile(
-    "(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL
-)
+pref_re = regex.compile("(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL)
 new_pref = ""
 
 start = "\n<|s|>\n"
@@ -108,11 +101,10 @@ r = regex.compile(r"\n<\|e")
 produced = 0
 
 # Needed to avoid cross-domain issues
-response_header = {
-    "Access-Control-Allow-Origin": "*"
-}
+response_header = {"Access-Control-Allow-Origin": "*"}
 
 generate_count = 0
+
 
 def generate(params):
 
@@ -151,44 +143,48 @@ def generate(params):
 
     context_tokens = enc.encode(pref)
     l = len(context_tokens)
-    # cprint(f"re-length: {l}")
+    cprint(f"current length {l}")
 
     # checks for length, in case input is very long
-    if l > 1023 - length_desired:
-        context_tokens = context_tokens[-(1023 - length_desired):]
+    # max_length = 1023 - length_desired
+    max_length = 512 - length_desired
+    if l > max_length:
+        context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)
-        end_pref = l
-        cprint(
-            f"exceeding 1023 total tokens in regenerating, trimmed length: {l}"
-        )
+        end_pref = len(enc.decode(context_tokens))
+        cprint(f"exceeding 1023 total tokens in regenerating, trimmed length: {l}")
 
     out = sess.run(
-        output,
-        feed_dict={context: 1 * [context_tokens], length: length_desired},
+        output, feed_dict={context: 1 * [context_tokens], length: length_desired},
     )
 
     pref = enc.decode(out[0])
 
+    cprint("current pref:")
+    print(pref)
+
     l_no_pref = pref[end_pref:]
     new_length = len(l_no_pref)
 
-    produced += new_length - produced
-
-    cprint("produced:")
+    cprint("l no pref:")
     print(l_no_pref)
+
+    # produced += new_length - produced
 
     m = regex.search(r, l_no_pref)
     if m:
-        cprint('found end marker')
+        cprint("found end marker")
         print(l_no_pref)
         end_ind = m.span()[0]
         new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
     else:
         new_pref = pref
 
+    cprint("new prefix stored:")
     print(new_pref)
 
     return l_no_pref
+
 
 @app.route("/", methods=("GET", "HEAD", "POST"))
 async def homepage(request):
@@ -196,7 +192,7 @@ async def homepage(request):
     global new_pref
     # global generate_count
 
-    if request.method in  ("GET", "HEAD"):
+    if request.method in ("GET", "HEAD"):
         new_pref = ""
         return templates.TemplateResponse("home.html", {"request": request})
     elif request.method == "POST":

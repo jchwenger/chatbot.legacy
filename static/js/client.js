@@ -24,7 +24,7 @@ $(() => {
           // diable generate button
           $('#generate-text').addClass("is-loading");
           $('#generate-text').prop("disabled", true);
-          $('#tutorial').remove();
+          // $('#tutorial').remove();
           // print user input to output screen
           const chrct = `<div>${vals.character}</div>`;
           const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");

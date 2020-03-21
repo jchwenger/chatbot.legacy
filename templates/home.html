@@ -8,118 +8,69 @@
     <title>Génération textuelle avec GPT-2</title>
     <meta name="title" content="Génération textuelle avec GPT-2" />
     <meta name="description" content="Génération textuelle avec GPT-2" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
     <link rel="stylesheet" href="../static/css/style.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   </head>
 
   <nav class="my-navbar" role="navigation" aria-label="main navigation">
     <div class="nav-title">
-      <span class="icon is-large">
-        <span class="fa-stack">
-          <i class="fas fa-circle fa-stack-2x"></i>
-          <i class="fas fa-robot fa-stack-1x fa-inverse"></i>
-        </span>
-      </span>
       <div class="title-text">THÉÂTRE CLASSIQUE</div>
     </div>
   </nav>
 
-  <!-- <nav class="navbar" role="navigation" aria-label="main navigation"> -->
-  <!--   <div class="navbar-brand"> -->
-  <!--     <span class="icon is-large"> -->
-  <!--       <span class="fa-stack"> -->
-  <!--         <i class="fas fa-circle fa-stack-2x"></i> -->
-  <!--         <i class="fas fa-robot fa-stack-1x fa-inverse"></i> -->
-  <!--       </span> -->
-  <!--     </span> -->
-  <!--     <div class="brand-text is-family-code is-uppercase has-text-weight-bold">THÉÂTRE CLASSIQUE</div> -->
-  <!--     <!-1- <div class="navbar-item">Génération textuelle avec GPT-2.</div> -1-> -->
-  <!--   </div> -->
-  <!--   <div id="navbarBasicExample" class="navbar-menu is-active"> -->
-  <!--     <div class="navbar-start"> -->
-  <!--       <!-1- <div class="navbar-item"> -1-> -->
-  <!--       <!-1-   Génération textuelle avec GPT-2. -1-> -->
-  <!--       <!-1- </div> -1-> -->
-  <!--     </div> -->
-  <!--     <div class="navbar-end"> -->
-  <!--       <div class="navbar-item is-hidden-touch"> -->
-  <!--         <div class="buttons"> -->
-  <!--         </div> -->
-  <!--       </div> -->
-  <!--     </div> -->
-  <!--   </div> -->
-  <!-- </nav> -->
 
   <body>
 
-    <!-- <section id="main" class="section"> -->
-    <section id="main">
+    <div class="container">
+      <div id="output" class="model-output-container">
+        <div id="model-output" class="subtitle"></div>
+      </div>
+    </div>
 
-      <div class="container">
+    <div class="control-panel">
 
-        <div id="output" class="model-output-container">
+      <form id="gen-form">
 
-          <div id="model-output" class="subtitle"></div>
+        <div class="flex-column">
 
-        </div>
+          <div class="text-controls">
+            <div class="control">
+              <textarea id="character" class="textarea" type="text" placeholder="LE COMTE." rows="1"></textarea>
+              <!-- <span class="help"><em>Qui es-tu ?</em></span> -->
+            </div>
 
-          <div class="control-panel">
-
-            <form id="gen-form">
-
-              <div class="flex-column">
-
-                <div class="text-controls">
-
-                  <div class="control">
-                    <textarea id="character" class="textarea" type="text" placeholder="LE COMTE." rows="1"></textarea>
-                    <!-- <span class="help"><em>Qui es-tu ?</em></span> -->
-                  </div>
-
-                  <div class="control">
-                    <textarea id="prefix" class="textarea" type="text" placeholder="Enfin vous l'emportez, et la faveur du Roi&#10;Vous élève en un rang qui n'était dû qu'à moi,&#10;Il vous fait Gouverneur du Prince de Castille." rows="3"></textarea>
-                    <!-- <span class="help"><em>Ta réplique ! (Ctrl+Enter).</em></span> -->
-                  </div>
-
-                </div>
-
-                <div id="buttons" class="button-controls">
-
-                  <button type="submit" name="submit" id="generate-text" class="buttonz model-generate">
-                  <!-- <button type="submit" name="submit" id="generate-text" class="button is-outlined is-block is-link is-large"> -->
-                  <span class="icon">
-                    <i class="fas fa-md fa-pen"></i>
-                  </span>
-                  </button>
-                  <button id="clear-text" class="buttonz model-reset">
-                  <!-- <button id="clear-text" class="button is-outlined is-block is-danger is-large"> -->
-                  <span class="icon">
-                    <i class="fas fa-md fa-redo-alt"></i>
-                  </span>
-                  </button>
-
-                </div>
-
-              </div>
-
-            </form>
+            <div class="control">
+              <textarea id="prefix" class="textarea" type="text" placeholder="Enfin vous l'emportez, et la faveur du Roi&#10;Vous élève en un rang qui n'était dû qu'à moi,&#10;Il vous fait Gouverneur du Prince de Castille." rows="3"></textarea>
+              <!-- <span class="help"><em>Ta réplique ! (Ctrl+Enter).</em></span> -->
+            </div>
           </div>
 
+          <div id="buttons" class="button-controls">
+
+            <button type="submit" name="submit" id="generate-text" class="buttonz model-generate">
+              <span class="icon icon-send">
+                <i class="fas fa-angle-double-right"></i>
+              </span>
+            </button>
+
+            <button id="clear-text" class="buttonz model-reset">
+              <span class="icon icon-reset">
+                <i class="fas fa-md fa-redo-alt"></i>
+              </span>
+            </button>
+
+          </div>
         </div>
-      </div>
-    </section>
+
+      </form>
+
+    </div>
 
   </body>
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
           integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
   </script>
-
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js">
-  </script>
-
   <script src="../static/js/client.js"></script>
 
 </html>

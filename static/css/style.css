@@ -2,24 +2,33 @@ html,
 body {
   height: 100% !important;
   margin: 0 !important;
+  overflow: auto;
+  text-rendering: optimizeLegibility;
+  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  box-sizing: border-box;
 }
-
-/*footer {*/
-/*  /*max-height: 5% !important;*/*/
-/*  padding: 1em !important*/
-/*}*/
 
 section {
   min-height: 95% !important
 }
 
+/* https://css-tricks.com/box-sizing/ */
+*, ::after, ::before {
+    box-sizing: inherit;
+}
+
 .navbar {
+ visibility: hidden;
   /* overflow: hidden; */
 }
 
 .my-navbar {
   box-shadow: 0 8px 16px rgba(10,10,10,.1);
-  height: 10%;
+  height: 50px;
+  width: 100%;
+  background-color: white;
+  position: fixed;
+  z-index: 2;
   /* overflow: hidden; */
 }
 
@@ -30,33 +39,32 @@ section {
   min-height: 3.25rem;
 }
 
-#main {
-  height: 90%;
-}
-
 .container {
-  height: inherit;
+  height: calc(100% - 50px - 170px - 3px);
+  margin-top: 50px;
+  visibility: hidden;
 }
 
 .model-output-container {
   width: 80%;
-  padding-top: 2%;
   padding-left: 20%;
-  height: 55%;
+  height: inherit;
   position: fixed;
   left: 0;
   vertical-align: bottom;
   overflow: auto;
+  visibility: visible;
 }
 
 #model-output {
-  width: 85%;
+  width: 100%;
+  padding: 20px 0;
 }
 
 .gen-box {
   background-color: #fff;
   display: block;
-  padding: 1.25rem;
+  padding: 0.5rem 1.25rem;
   color: #4a4a4a;
   font-size: 1rem;
   font-weight: 400;
@@ -67,7 +75,7 @@ section {
   text-align: right;
   background-color: #fff;
   display: block;
-  padding: 1.25rem;
+  padding: 0.5rem 1.25rem;
   color: #4a4a4a;
   font-size: 1rem;
   font-weight: 400;
@@ -75,12 +83,13 @@ section {
 }
 
 .control-panel {
-  width: 60%;
+  visibility: visible;
+  width: 100%;
+  height: 170px;
   padding-top: 5px;
   background: white;
   position: fixed;
   bottom: 0;
-  left: 20%;
 }
 
 #gen-form {
@@ -93,8 +102,30 @@ section {
 }
 
 .textarea {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: .625em;
+  resize: vertical;
+  line-height: 1.4;
+  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 1rem;
+  margin: 0;
+  border: 1px solid transparent; 
+  color: rgb(54, 54, 54);
+  border-color: rgb(219, 219, 219);
+  background-color: rgb(255, 255, 255);
   border-color: rgb(181, 181, 181);
-  /* display: inline; */
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(10,10,10,.1);
+}
+
+.textarea[rows] {
+  height: initial;
+}
+
+.textarea::placeholder {
+    color: rgba(54,54,54,.6);
 }
 
 .text-controls {
@@ -111,6 +142,8 @@ section {
 
 .flex-column {
   display: flex;
+  padding-left:20%;
+  width: 80%;
 }
 
 .buttonz {
@@ -127,12 +160,10 @@ section {
   -webkit-appearance: none;
   align-items: center;
   border-color: transparent;
-  /* border-width: 1px; */
-  /* border-radius: 4px; */
   box-shadow: none;
   display: inline-flex;
-  font-size: 1rem;
-  height: 2.95em;
+  /* font-size: 1rem; */
+  height: 100%;
   line-height: 1.5;
   user-select: none;
   /* margin: 0px 0px; */
@@ -140,57 +171,43 @@ section {
 
 .model-generate {
   background-color: transparent;
-  /* border-color: black; */
   color: rgb(54, 54, 54);
-  /* border-color: rgb(50, 115, 220); */
-  /* color: rgb(50, 115, 220); */
 }
-
-/* .model-generate:hover { */
-/*   background-color: black; */
-/*   border-color: black; */
-/*   color: white; */
-/*   /1* background-color: rgb(50, 115, 220); *1/ */
-/*   /1* border-color: rgb(50, 115, 220); *1/ */
-/*   /1* color: rgb(255, 255, 255); *1/ */
-/* } */
 
 .model-reset {
   background-color: transparent;
-  /* border-color: black; */
   color: rgb(54, 54, 54);
-  /* border-color: rgb(255, 56, 96); */
-  /* color: rgb(255, 56, 96); */
   margin-top: 0.2em;
 }
-
-/* .model-reset:hover { */
-/*   background-color: black; */
-/*   border-color: black; */
-/*   color: white; */
-/*   /1* background-color: rgb(255, 56, 96); *1/ */
-/*   /1* border-color: rgb(255, 56, 96); *1/ */
-/*   color: rgb(255, 255, 255); */
-/* } */
 
 .icon {
   height: 1.5em;
   width: 1.5em;
   align-items: center;
-  display: inline-flex;
+}
+
+.icon-send {
+  font-size: 2.4rem;
+}
+
+.icon-reset {
+  font-size: 1.9rem;
+}
+
+.logo {
   font-size: 1.5rem;
+  height: 3rem;
+  width: 3rem;
 }
 
 .help {
-  /* display: inline; */
-  /* writing-mode: vertical-rl; */
   text-align: right;
 }
 
 .title-text {
   display: flex;
   align-items: center;
-  padding: 0 5px;
+  padding: 0 10px;
   font-size: 1.5rem;
   font-family: monospace !important;
   font-weight: 700 !important;
@@ -221,4 +238,7 @@ section {
   #model-output {
     width: 100%;
   }
+  .flex-column {
+    width: 100%;
+    padding-left: 0;
 }

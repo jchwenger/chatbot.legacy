@@ -77,7 +77,6 @@ $(() => {
           // console.log("is now typing");
           typeWrite(totalText);
         }
-        adjustScroll();
 
         if (recall) {
           const newVals = { "prefix" : "" };
@@ -104,6 +103,7 @@ $(() => {
   function typeWrite(txt, speed=100) {
     if (textIndex < txt.length) {
       $(".gen-box:last").append(txt[textIndex].replace('\n', "<br>"));
+      adjustScroll();
       textIndex++;
       const rand = (Math.random() + .2) * speed;
       // console.log("char and rand", txt.charAt(textIndex), rand);

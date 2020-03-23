@@ -23,8 +23,6 @@ $(() => {
         if (vals.hasOwnProperty('character')) {
           // diable generate button
           $('#generate-text').addClass("is-loading");
-          $('#generate-text').prop("disabled", true);
-          // $('#tutorial').remove();
           // print user input to output screen
           const chrct = `<div>${vals.character}</div>`;
           const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
@@ -49,8 +47,7 @@ $(() => {
         console.log("test start", testStart);
         if (testStart) {
           console.log("regex start found");
-          gentext = answer
-            .replace(regexStart, "");
+          gentext = answer.replace(regexStart, "");
           gentext = newLineHack(gentext);
           console.log("edited:", gentext);
         } else if (regexEnd.test(answer)) {
@@ -61,8 +58,7 @@ $(() => {
           recall = false;
         } else {
           console.log("generating thru");
-          gentext = answer
-            .replace(regexElse, "");
+          gentext = answer.replace(regexElse, "");
           // hack for riddance of \n before char name
           gentext = newLineHack(gentext);
           console.log("edited:", gentext);
@@ -88,10 +84,6 @@ $(() => {
 
         // restore button state
         $('#generate-text').removeClass("is-loading");
-        $('#generate-text').prop("disabled", false);
-        // $('#tutorial').remove();
-        // const html = '<div class="gen-box warning">There was an error generating the text! Please try again!</div><div class="gen-border"></div>';
-        // $(html).appendTo('#model-output').hide().fadeIn("slow");
       }
     });
   }

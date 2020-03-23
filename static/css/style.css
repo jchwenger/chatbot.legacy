@@ -18,8 +18,8 @@ button {
 }
 
 /* https://stackoverflow.com/a/4524220/9638108 */
-button::-moz-focus-inner { 
-  border: 0; 
+button::-moz-focus-inner {
+  border: 0;
 }
 
 /* https://css-tricks.com/box-sizing/ */

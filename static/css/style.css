@@ -12,6 +12,16 @@ section {
   min-height: 95% !important
 }
 
+/* https://css-tricks.com/removing-the-dotted-outline/ */
+button {
+  outline: none;
+}
+
+/* https://stackoverflow.com/a/4524220/9638108 */
+button::-moz-focus-inner { 
+  border: 0; 
+}
+
 /* https://css-tricks.com/box-sizing/ */
 *, ::after, ::before {
     box-sizing: inherit;

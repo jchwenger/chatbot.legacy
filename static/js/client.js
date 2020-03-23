@@ -90,7 +90,7 @@ $(() => {
     });
   }
 
-  function typeWrite(txt, i=0, speed=100) {
+  function typeWrite(txt, i=0, speed=50) {
     if (i < txt.length) {
       $(".gen-box:last").append(txt[i].replace('\n', "<br>"));
       i++;

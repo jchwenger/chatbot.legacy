@@ -23,6 +23,7 @@ $(() => {
         if (vals.hasOwnProperty('character')) {
           // diable generate button
           $('#generate-text').addClass("is-loading");
+          $('#generate-text').prop("disabled", true);
           // print user input to output screen
           const chrct = `<div>${vals.character}</div>`;
           const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
@@ -84,6 +85,7 @@ $(() => {
 
         // restore button state
         $('#generate-text').removeClass("is-loading");
+        $('#generate-text').prop("disabled", false);
       }
     });
   }

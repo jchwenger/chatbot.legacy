@@ -50,15 +50,13 @@ $(() => {
         if (testStart) {
           console.log("regex start found");
           gentext = answer
-            .replace(regexStart, "")
-            .replace(/\n/g, "<br>");
+            .replace(regexStart, "");
           gentext = newLineHack(gentext);
           console.log("edited:", gentext);
         } else if (regexEnd.test(answer)) {
           console.log("regex end found");
           regexEnd.lastIndex = 0; // reset index
           gentext = answer.substring(0, regexEnd.exec(answer).index);
-          gentext = gentext.replace(/\n/g, "<br>");
           console.log("edited:", gentext);
           recall = false;
         } else {
@@ -70,7 +68,7 @@ $(() => {
           console.log("edited:", gentext);
         }
 
-        $(".gen-box:last").append(gentext);
+        typeWrite(gentext);
         adjustScroll();
 
         if (recall) {
@@ -81,7 +79,7 @@ $(() => {
           $('#generate-text').removeClass("is-loading");
           $('#generate-text').prop("disabled", false);
         }
-      },
+        },
       error: function (jqXHR, textStatus, errorThrown) {
         console.log("ajax error:");
         console.log(jqXHR);
@@ -98,6 +96,19 @@ $(() => {
     });
   }
 
+  function typeWrite(txt, i=0, speed=100) {
+    if (i < txt.length) {
+      $(".gen-box:last").append(txt[i].replace('\n', "<br>"));
+      i++;
+      const rand = (Math.random() + .2) * speed;
+      console.log("char and rand", txt.charAt(i), rand);
+      try {
+        setTimeout(typeWrite, rand, txt, i, speed);
+      } catch(e) {
+      }
+    }
+  }
+
   function adjustScroll() {
     document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
   }
@@ -106,14 +117,13 @@ $(() => {
     // hack for riddance of \n before char name
     if (gentext == gentext.toUpperCase()) {
       console.log('(gentext upper case trick)');
-      gentext = gentext.replace(/^\n/, "")
-        .replace(/\n/g, "<br>");
+      gentext = gentext.replace(/^\n/, "");
     } else {
       console.log('(no gentext upper case trick)');
-      gentext = gentext.replace(/\n/g, "<br>");
     }
     return gentext;
   }
+
   $('#clear-text').click(function (e) {
     $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
     e.preventDefault();

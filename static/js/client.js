@@ -4,6 +4,11 @@ $(() => {
   const regexEnd = /\n<\|e\|*\>*|\n*<*\|*e\|>/g;
   const regexElse = /<\|*|\|*>/;
 
+  let isTyping = false;
+  let doneTyping = false;
+  let textIndex = 0;
+  let totalText = "";
+
   $('#gen-form').submit(function (e) {
     e.preventDefault();
     const vals = getInputValues();
@@ -40,32 +45,38 @@ $(() => {
       },
       success: function (data) {
         const answer = JSON.parse(data.text);
-        console.log("data:", data);
-        console.log("parsed answer:", answer);
+        // console.log("data:", data);
+        // console.log("parsed answer:", answer);
         let recall = true;
-        let gentext = "";
+        let genText = "";
         testStart = regexStart.test(answer);
-        console.log("test start", testStart);
+        // console.log("test start", testStart);
         if (testStart) {
-          console.log("regex start found");
-          gentext = answer.replace(regexStart, "");
-          gentext = newLineHack(gentext);
-          console.log("edited:", gentext);
+          // console.log("regex start found");
+          genText = answer.replace(regexStart, "");
+          genText = newLineHack(genText);
+          // console.log("edited:", genText);
         } else if (regexEnd.test(answer)) {
-          console.log("regex end found");
+          // console.log("regex end found");
           regexEnd.lastIndex = 0; // reset index
-          gentext = answer.substring(0, regexEnd.exec(answer).index);
-          console.log("edited:", gentext);
+          genText = answer.substring(0, regexEnd.exec(answer).index);
+          // console.log("edited:", genText);
           recall = false;
         } else {
-          console.log("generating thru");
-          gentext = answer.replace(regexElse, "");
+          // console.log("generating thru");
+          genText = answer.replace(regexElse, "");
           // hack for riddance of \n before char name
-          gentext = newLineHack(gentext);
-          console.log("edited:", gentext);
+          genText = newLineHack(genText);
+          // console.log("edited:", genText);
         }
 
-        typeWrite(gentext);
+        totalText += genText;
+        // console.log("totalText now:", totalText);
+        if (!isTyping) {
+          isTyping = true;
+          // console.log("is now typing");
+          typeWrite(totalText);
+        }
         adjustScroll();
 
         if (recall) {
@@ -73,6 +84,7 @@ $(() => {
           generate(newVals);
         } else {
           // do this only if found end marker
+          doneTyping = true;
           $('#generate-text').removeClass("is-loading");
           $('#generate-text').prop("disabled", false);
         }
@@ -82,7 +94,6 @@ $(() => {
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
-
         // restore button state
         $('#generate-text').removeClass("is-loading");
         $('#generate-text').prop("disabled", false);
@@ -90,32 +101,45 @@ $(() => {
     });
   }
 
-  function typeWrite(txt, i=0, speed=50) {
-    if (i < txt.length) {
-      $(".gen-box:last").append(txt[i].replace('\n', "<br>"));
-      i++;
+  function typeWrite(txt, speed=100) {
+    if (textIndex < txt.length) {
+      $(".gen-box:last").append(txt[textIndex].replace('\n', "<br>"));
+      textIndex++;
       const rand = (Math.random() + .2) * speed;
-      console.log("char and rand", txt.charAt(i), rand);
+      // console.log("char and rand", txt.charAt(textIndex), rand);
       try {
-        setTimeout(typeWrite, rand, txt, i, speed);
+        setTimeout(typeWrite, rand, txt, speed);
       } catch(e) {
       }
+    } else {
+      isTyping = false;
+      if (doneTyping) {
+        resetTyping();
+      }
+      // console.log("no longer typing");
     }
+  }
+
+  function resetTyping() {
+    // console.log("resetting textIndex");
+    totalText = "";
+    textIndex = 0;
+    doneTyping = false;
   }
 
   function adjustScroll() {
     document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
   }
 
-  function newLineHack(gentext) {
+  function newLineHack(genText) {
     // hack for riddance of \n before char name
-    if (gentext == gentext.toUpperCase()) {
-      console.log('(gentext upper case trick)');
-      gentext = gentext.replace(/^\n/, "");
+    if (genText == genText.toUpperCase()) {
+      // console.log('(genText upper case trick)');
+      genText = genText.replace(/^\n/, "");
     } else {
-      console.log('(no gentext upper case trick)');
+      // console.log('(no genText upper case trick)');
     }
-    return gentext;
+    return genText;
   }
 
   $('#clear-text').click(function (e) {

@@ -130,12 +130,12 @@ def generate(params):
 
     # first request, we add the char name & user input
     if char_name and input_orig:
-        print("adding char and user input")
+        # print("adding char and user input")
         pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
     else:
         pref = new_pref
 
-    cprint("current prefix:")
+    cprint("prefix:")
     print(pref)
 
     # add end of answer, store length of prefix
@@ -143,7 +143,7 @@ def generate(params):
 
     context_tokens = enc.encode(pref)
     l = len(context_tokens)
-    cprint(f"current length {l}")
+    # cprint(f"current length {l}")
 
     # checks for length, in case input is very long
     # max_length = 1023 - length_desired
@@ -160,13 +160,13 @@ def generate(params):
 
     pref = enc.decode(out[0])
 
-    cprint("current pref:")
-    print(pref)
+    # cprint("current pref:")
+    # print(pref)
 
     l_no_pref = pref[end_pref:]
     new_length = len(l_no_pref)
 
-    cprint("l no pref:")
+    cprint("produced:")
     print(l_no_pref)
 
     # produced += new_length - produced
@@ -174,14 +174,14 @@ def generate(params):
     m = regex.search(r, l_no_pref)
     if m:
         cprint("found end marker")
-        print(l_no_pref)
+        # print(l_no_pref)
         end_ind = m.span()[0]
         new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
     else:
         new_pref = pref
 
-    cprint("new prefix stored:")
-    print(new_pref)
+    # cprint("new prefix stored:")
+    # print(new_pref)
 
     return l_no_pref
 

@@ -35,7 +35,9 @@ $(() => {
           const prompt = `<div class="gen-box-right">${chrct}${blather}</div>`
           $(prompt).appendTo('#model-output').hide().fadeIn("slow");
           // make suggestions actual text if they weren't, empty prefix box
-          $('#character').val($('#character').attr('placeholder'));
+          if (!$('#character').val()) {
+            $('#character').val($('#character').attr('placeholder'));
+          }
           $('#prefix').val('');
           $('#prefix').attr('placeholder', '');
           // create empty div to receive our answer

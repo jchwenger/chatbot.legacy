@@ -46,7 +46,7 @@ section {
 }
 
 .model-output-container {
-  width: 80%;
+  width: 100%;
   padding-left: 20%;
   height: inherit;
   position: fixed;
@@ -57,29 +57,25 @@ section {
 }
 
 #model-output {
-  width: 100%;
+  width: 75%;
   padding: 20px 0;
+  color: #4a4a4a;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.25;
 }
 
 .gen-box {
-  background-color: #fff;
   display: block;
+  background-color: #fff;
   padding: 0.5rem 1.25rem;
-  color: #4a4a4a;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.25;
 }
 
 .gen-box-right {
-  text-align: right;
-  background-color: #fff;
   display: block;
+  background-color: #fff;
   padding: 0.5rem 1.25rem;
-  color: #4a4a4a;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.25;
+  text-align: right;
 }
 
 .control-panel {
@@ -111,7 +107,7 @@ section {
   font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 1rem;
   margin: 0;
-  border: 1px solid transparent; 
+  border: 1px solid transparent;
   color: rgb(54, 54, 54);
   border-color: rgb(219, 219, 219);
   background-color: rgb(255, 255, 255);
@@ -228,7 +224,6 @@ section {
 
 @media only screen and (max-width: 700px) {
   .model-output-container {
-    width: 100%;
     padding-left: 0%;
   }
   .control-panel {
@@ -241,4 +236,13 @@ section {
   .flex-column {
     width: 100%;
     padding-left: 0;
+}
+
+@media only screen and (max-width: 400px) {
+  #model-output {
+    font-size: .9rem;
+  }
+  .textarea {
+    font-size: .9rem;
+  }
 }

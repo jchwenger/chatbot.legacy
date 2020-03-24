@@ -5,7 +5,6 @@ $(() => {
   const regexElse = /<\|*|\|*>/;
 
   let isTyping = false;
-  let doneTyping = false;
   let textIndex = 0;
   let totalText = "";
 
@@ -13,6 +12,7 @@ $(() => {
     e.preventDefault();
     const vals = getInputValues();
     // console.log('vals:', vals);
+    resetTyping();
     generate(vals);
 
   });
@@ -74,6 +74,7 @@ $(() => {
 
         totalText += genText;
         // console.log("totalText now:", totalText);
+        console.log(genText);
         if (!isTyping) {
           isTyping = true;
           // console.log("is now typing");
@@ -85,7 +86,6 @@ $(() => {
           generate(newVals);
         } else {
           // do this only if found end marker
-          doneTyping = true;
           $('#generate-text').removeClass("is-loading");
           $('#generate-text').prop("disabled", false);
         }
@@ -115,18 +115,14 @@ $(() => {
       }
     } else {
       isTyping = false;
-      if (doneTyping) {
-        resetTyping();
-      }
       // console.log("no longer typing");
     }
   }
 
   function resetTyping() {
-    // console.log("resetting textIndex");
+    console.log("resetting typing");
     totalText = "";
     textIndex = 0;
-    doneTyping = false;
   }
 
   function adjustScroll() {

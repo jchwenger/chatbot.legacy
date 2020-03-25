@@ -5,6 +5,7 @@ $(() => {
   const regexElse = /<\|*|\|*>/;
 
   let isTyping = false;
+  let isGenerating = false;
   let textIndex = 0;
   let totalText = "";
 
@@ -27,8 +28,8 @@ $(() => {
         // character given only on form submit
         if (vals.hasOwnProperty('character')) {
           // diable generate button
-          $('#generate-text').addClass("is-loading");
-          $('#generate-text').prop("disabled", true);
+          isGenerating = true;
+          disableGenerationButton();
           // print user input to output screen
           const chrct = `<div>${vals.character}</div>`;
           const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
@@ -41,7 +42,7 @@ $(() => {
           $('#prefix').val('');
           $('#prefix').attr('placeholder', '');
           // create empty div to receive our answer
-          $('<div class="gen-box"></div>').appendTo("#model-output");
+          $('<div data-html="true" class="gen-box"></div>').appendTo("#model-output");
           adjustScroll();
         }
       },
@@ -49,7 +50,7 @@ $(() => {
         const answer = JSON.parse(data.text);
         // console.log("data:", data);
         // console.log("parsed answer:", answer);
-        let recall = true;
+        let callAgain = true;
         let genText = "";
         testStart = regexStart.test(answer);
         // console.log("test start", testStart);
@@ -63,7 +64,7 @@ $(() => {
           regexEnd.lastIndex = 0; // reset index
           genText = answer.substring(0, regexEnd.exec(answer).index);
           // console.log("edited:", genText);
-          recall = false;
+          callAgain = false;
         } else {
           // console.log("generating thru");
           genText = answer.replace(regexElse, "");
@@ -74,71 +75,68 @@ $(() => {
 
         totalText += genText;
         // console.log("totalText now:", totalText);
-        console.log(genText);
-        if (!isTyping) {
+        // console.log('-----------------');
+        // console.log('generated:');
+        // console.log(genText);
+        // console.log('-----------------');
+
+        // type only if tab is in focus, otherwise only store the text
+        if (!document.hidden && !isTyping) {
+          // console.log('document off focus');
           isTyping = true;
           // console.log("is now typing");
           typeWrite(totalText);
         }
 
-        if (recall) {
+        // make another request until the end marker is found
+        if (callAgain) {
           const newVals = { "prefix" : "" };
           generate(newVals);
         } else {
           // do this only if found end marker
-          $('#generate-text').removeClass("is-loading");
-          $('#generate-text').prop("disabled", false);
+          isGenerating = false;
         }
-        },
+      },
       error: function (jqXHR, textStatus, errorThrown) {
-        console.log("ajax error:");
+        logUnderlined("ajax error:");
         console.log(jqXHR);
         console.log(textStatus);
         console.log(errorThrown);
+        console.log('-----------------');
         // restore button state
-        $('#generate-text').removeClass("is-loading");
-        $('#generate-text').prop("disabled", false);
+        isGenerating = false;
+        enableGenerationButton();
       }
     });
   }
 
-  function typeWrite(txt, speed=100) {
-    if (textIndex < txt.length) {
-      $(".gen-box:last").append(txt[textIndex].replace('\n', "<br>"));
-      adjustScroll();
-      textIndex++;
-      const rand = (Math.random() + .2) * speed;
-      // console.log("char and rand", txt.charAt(textIndex), rand);
-      try {
-        setTimeout(typeWrite, rand, txt, speed);
-      } catch(e) {
+  window.onfocus = (e) => {
+    // logUnderlined("on focus again");
+    if (textIndex < totalText.length) {
+      typeWrite(totalText);
+    }
+  };
+
+  function typeWrite(txt, speed=150) {
+      if (textIndex < txt.length) {
+        $(".gen-box:last").append(txt[textIndex].replace('\n', '<br>'));
+        adjustScroll();
+        textIndex++;
+        const rand = (Math.random() + .2) * speed;
+        // console.log("char and rand", txt.charAt(textIndex), rand);
+        try {
+          setTimeout(typeWrite, rand, txt, speed);
+        } catch(e) {
+        }
+      } else {
+        // end of typing
+        isTyping = false;
+        if (!isGenerating) {
+          enableGenerationButton();
+        }
+        // console.log("no longer typing");
       }
-    } else {
-      isTyping = false;
-      // console.log("no longer typing");
     }
-  }
-
-  function resetTyping() {
-    console.log("resetting typing");
-    totalText = "";
-    textIndex = 0;
-  }
-
-  function adjustScroll() {
-    document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
-  }
-
-  function newLineHack(genText) {
-    // hack for riddance of \n before char name
-    if (genText == genText.toUpperCase()) {
-      // console.log('(genText upper case trick)');
-      genText = genText.replace(/^\n/, "");
-    } else {
-      // console.log('(no genText upper case trick)');
-    }
-    return genText;
-  }
 
   $('#clear-text').click(function (e) {
     $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
@@ -151,6 +149,43 @@ $(() => {
   });
 
 });
+
+function resetTyping() {
+  // console.log("resetting typing");
+  totalText = "";
+  textIndex = 0;
+}
+
+function adjustScroll() {
+  document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+}
+
+function disableGenerationButton() {
+  $('#generate-text').addClass("is-loading");
+  $('#generate-text').prop("disabled", true);
+}
+
+function enableGenerationButton() {
+  $('#generate-text').removeClass("is-loading");
+  $('#generate-text').prop("disabled", false);
+}
+
+function logUnderlined(msg) {
+  console.log(msg);
+  console.log('-'.repeat(msg.length));
+}
+
+function newLineHack(genText) {
+  // hack for riddance of \n before char name
+  if (genText == genText.toUpperCase()) {
+    // console.log('(genText upper case trick)');
+    genText = genText.replace(/^\n/, "");
+  } else {
+    // console.log('(no genText upper case trick)');
+  }
+  return genText;
+}
+
 
 function getInputValues() {
   const inputs = {};

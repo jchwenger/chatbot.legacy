@@ -10,3 +10,6 @@ models
 
 # python cache
 **/__pycache__
+
+# error logs
+logs

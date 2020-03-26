@@ -95,6 +95,9 @@ $(() => {
         } else {
           // do this only if found end marker
           isGenerating = false;
+          if (!document.hidden && !isTyping) {
+            enableGenerationButton();
+          }
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
@@ -117,7 +120,7 @@ $(() => {
     }
   };
 
-  function typeWrite(txt, speed=150) {
+  function typeWrite(txt, speed=100) {
       if (textIndex < txt.length) {
         $(".gen-box:last").append(txt[textIndex].replace('\n', '<br>'));
         adjustScroll();

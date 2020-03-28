@@ -42,8 +42,10 @@ $(() => {
           $('#prefix').val('');
           $('#prefix').attr('placeholder', '');
           // create empty div to receive our answer
-          $('<div data-html="true" class="gen-box"></div>').appendTo("#model-output");
-          adjustScroll();
+          $('<div data-html="true" class="gen-box"></div>')
+            .appendTo("#model-output")
+            .promise()
+            .done(adjustScroll(full=true));
         }
       },
       success: function (data) {
@@ -122,8 +124,19 @@ $(() => {
 
   function typeWrite(txt, speed=100) {
       if (textIndex < txt.length) {
-        $(".gen-box:last").append(txt[textIndex].replace('\n', '<br>'));
-        adjustScroll();
+        let adjust = false;
+        let bit = txt[textIndex];
+        if (bit == '\n') {
+          // console.log('found newline');
+          bit = '<br>';
+          adjust = true;
+        }
+        $(".gen-box:last")
+          .append(bit)
+          .promise()
+          .done(() => {
+            if (adjust) adjustScroll();
+          });
         textIndex++;
         const rand = (Math.random() + .2) * speed;
         // console.log("char and rand", txt.charAt(textIndex), rand);
@@ -169,8 +182,22 @@ $(() => {
     console.log(`reset typing, total text now ${totalText}`);
   }
 
-function adjustScroll() {
-  document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+});
+
+function adjustScroll(full=false) {
+  let outTop = document.getElementById('output').scrollTop;
+  const outMax = document.getElementById('output').scrollTopMax;
+  // console.log(`scrollTop: ${outTop}, scrollHeight: ${outMax}`);
+  if (full) {
+    if (outTop < outMax) {
+      document.getElementById('output').scrollTop = outMax;
+    }
+  } else {
+    if (outTop > outMax - 21) {
+      // document.getElementById('output').scrollTop = document.getElementById('output').scrollTopMax;
+      console.log(`now scrollTop: ${outTop}, scrollHeight: ${outMax}`);
+    }
+  }
 }
 
 function disableGenerationButton() {

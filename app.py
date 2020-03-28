@@ -187,7 +187,8 @@ def generate(params):
 
     # checks for length, in case input is very long
     # max_length = 1023 - length_desired
-    max_length = 512 - length_desired
+    limit = 512
+    max_length = limit - length_desired
     if l > max_length:
         context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)

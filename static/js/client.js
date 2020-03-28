@@ -155,16 +155,21 @@ $(() => {
     }
 
   $('#clear-text').click(function (e) {
-    $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
     e.preventDefault();
-    $('#model-output').text('')
-    resetTyping();
-    clearTimeouts();
     $.ajax({
       type: "GET",
-      url: "/"
+      url: "/",
+      beforeSend: () => {
+        disableGenerationButton();
+        $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
+        $('#model-output').text('')
+        resetTyping();
+        clearTimeouts();
+      },
+      success: () => {
+        enableGenerationButton();
+      }
     });
-    enableGenerationButton();
   });
 
   // https://stackoverflow.com/a/8860203
@@ -177,6 +182,7 @@ $(() => {
   }
 
   function resetTyping() {
+    isTyping = false;
     totalText = "";
     textIndex = 0;
     console.log(`reset typing, total text now ${totalText}`);

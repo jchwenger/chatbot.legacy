@@ -11,6 +11,7 @@ COPY checkpoint /checkpoint
 RUN pip3 --no-cache-dir install tensorflow==1.15.2 gpt-2-simple starlette uvicorn ujson regex aiofiles jinja2
 # RUN pip3 install tensorflow==1.15.2 gpt-2-simple starlette uvicorn ujson regex aiofiles jinja2
 COPY app.py /
+COPY logs /logs
 COPY src /src
 COPY static /static
 COPY templates /templates

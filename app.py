@@ -229,8 +229,7 @@ def generate(params):
 
     m = regex.search(r, l_no_pref)
     if m:
-        underlog("found end marker")
-        # custom_log(l_no_pref)
+        underlog("found end marker", offset='\t\t\t\t')
         end_ind = m.span()[0]
         new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
     else:

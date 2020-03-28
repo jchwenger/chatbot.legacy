@@ -1,9 +1,11 @@
 from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 from tensorflow.core.protobuf import rewriter_config_pb2
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import PlainTextResponse
 from starlette.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 from starlette.responses import UJSONResponse
+from starlette.responses import FileResponse
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 import tensorflow as tf
@@ -221,8 +223,15 @@ def generate(params):
 
     return l_no_pref
 
+@app.route("/debug", methods=["GET"])
+async def debug(request):
+    filename = "logs/errors.log"
+    if os.path.isfile(filename):
+        return FileResponse(filename)
+    else:
+        return PlainTextResponse("No error logs found")
 
-@app.route("/", methods=("GET", "HEAD", "POST"))
+@app.route("/", methods=["GET", "HEAD", "POST"])
 async def homepage(request):
 
     global new_pref

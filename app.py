@@ -164,8 +164,13 @@ def generate(params):
         # custom_log(char_name)
         # custom_log(input_orig)
         pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
-    else:
+    # check: new_pref gets erased by the GET reset
+    elif new_pref:
         pref = new_pref
+    # if no prefix, char or new_pref, just return end marker to stop js
+    else:
+        return "<|e|>"
+
 
     # underlog("prefix:")
     # custom_log(pref)

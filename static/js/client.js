@@ -178,7 +178,7 @@ $(() => {
   // https://stackoverflow.com/a/8860203
   function clearTimeouts() {
     let id = window.setTimeout(() => {}, 0);
-    console.log('clearing all timeouts/typeWriter calls');
+    // console.log('clearing all timeouts/typeWriter calls');
     while (id--) {
       window.clearTimeout(id); // will do nothing if no timeout with id is present
     }
@@ -188,7 +188,7 @@ $(() => {
     isTyping = false;
     totalText = "";
     textIndex = 0;
-    console.log(`reset typing, total text now ${totalText}`);
+    // console.log(`reset typing, total text now ${totalText}`);
   }
 
 });

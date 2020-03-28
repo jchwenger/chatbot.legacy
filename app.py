@@ -18,6 +18,7 @@ import sample
 import model
 import regex
 import json
+import sys
 import os
 import gc
 
@@ -193,6 +194,10 @@ def generate(params):
         context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)
         end_pref = len(enc.decode(context_tokens))
+
+        # # for belly-of-the-beast-decoding, see encoder.py
+        # end_pref = len(enc.decode(context_tokens)[0])
+
         # underlog(f"exceeding {limit} total tokens in regenerating", level='WARNING')
         # custom_log(f"end of prefix at index {end_pref}, trimmed context length: {l}", level='WARNING')
 
@@ -202,6 +207,15 @@ def generate(params):
 
     pref = enc.decode(out[0])
 
+    # # for belly-of-the-beast-decoding, see encoder.py
+    # pref, warning = enc.decode(out[0])
+    # if warning > 0:
+    #     underlog(f"FOUND {warning} ILLEGAL TOKENS", level='ERROR', offset="\t\t\t")
+    #     custom_log(f"length sanity check:", level='ERROR', offset="\t\t\t")
+    #     custom_log(f"length of out - given context: {len(out[0] - l)}", level='ERROR', offset="\t\t\t")
+    #     underlog(f"raw out, last {length_desired} tokens:", level='ERROR', offset="\t\t\t")
+    #     custom_log(f"{out[0,-5:]}", level='ERROR', offset="\t\t\t")
+    #     sys.exit()
 
     # underlog("current pref:")
     # custom_log(pref)

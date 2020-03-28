@@ -40,7 +40,9 @@ def get_pairs(word):
     return pairs
 
 class Encoder:
-    def __init__(self, encoder, bpe_merges, errors='replace'):
+    # # for belly-of-the-beast-decoding, see app.py
+    # def __init__(self, encoder, bpe_merges, errors='strict'):
+    def __init__(self, encoder, bpe_merges, errors='ignore'):
         self.encoder = encoder
         self.decoder = {v:k for k,v in self.encoder.items()}
         self.errors = errors # how to handle errors in decoding
@@ -104,6 +106,35 @@ class Encoder:
         text = ''.join([self.decoder[token] for token in tokens])
         text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors=self.errors)
         return text
+
+        # warning = 0
+        # # for belly-of-the-beast-decoding, see app.py
+        # try:
+        #     text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors=self.errors)
+        # except Exception as e:
+        #     offset = "ERROR:\t\t\t"
+        #     print(f"{offset}CATCHING UNICODE ERROR IN THE BELLY OF THE BEAST")
+        #     print(f"{offset}TOKENS:")
+        #     print(f"{offset}{tokens}")
+        #     t1 = ''.join([self.decoder[token] for token in tokens])
+        #     print(f"{offset}DECODED STRING, type: {type(t1)}:")
+        #     print(f"{offset}{t1}")
+        #     t2 = [self.byte_decoder[c] for c in text]
+        #     print(f"{offset}BYTE LIST:")
+        #     print(f"{offset}{t2}")
+        #     t3 = bytearray([self.byte_decoder[c] for c in text])
+        #     print(f"{offset}BYTE ARRAY:")
+        #     print(f"{offset}{t3}")
+        #     t4 = t3.decode('utf-8', errors='backslashreplace')
+        #     print(f"{offset}UTF-8 DECODING:")
+        #     print(f"{offset}{t4}")
+        #     print(f"{offset}---------------------")
+        #     print(f"{offset}{e}")
+        #     warning += 1
+        #     text, new_warning = self.decode(tokens[:-1])
+        #     if new_warning:
+        #         warning += new_warning
+        # return text, warning
 
 def get_encoder(model_name, ckpt=True):
     mdir = 'models' if not ckpt else 'checkpoint'

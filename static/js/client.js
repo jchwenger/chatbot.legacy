@@ -151,6 +151,7 @@ $(() => {
       type: "GET",
       url: "/"
     });
+    enableGenerationButton();
   });
 
   // https://stackoverflow.com/a/8860203

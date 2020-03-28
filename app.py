@@ -219,8 +219,14 @@ if __name__ == "__main__":
         host="localhost",
         port=int(8080),
         root_path="/",
-        # host="0.0.0.0",
-        # port=int(os.environ.get("PORT", 8080)),
-        # root_path="***Cloud Run web address***",
-        proxy_headers=True,
+        log_level='debug'
     )
+
+# if __name__ == "__main__":
+#     uvicorn.run(
+#         app,
+#         host="0.0.0.0",
+#         port=int(os.environ.get("PORT", 8080)),
+#         root_path="***Cloud Run web address***",
+#         log_level='debug'
+#     )

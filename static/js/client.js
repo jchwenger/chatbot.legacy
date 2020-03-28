@@ -145,6 +145,7 @@ $(() => {
     $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
     e.preventDefault();
     $('#model-output').text('')
+    resetTyping();
     $.ajax({
       type: "GET",
       url: "/"
@@ -153,11 +154,11 @@ $(() => {
 
 });
 
-function resetTyping() {
-  // console.log("resetting typing");
-  totalText = "";
-  textIndex = 0;
-}
+  function resetTyping() {
+    totalText = "";
+    textIndex = 0;
+    console.log(`reset typing, total text now ${totalText}`);
+  }
 
 function adjustScroll() {
   document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;

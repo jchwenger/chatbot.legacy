@@ -6,6 +6,8 @@ $(() => {
 
   let isTyping = false;
   let isGenerating = false;
+  let autoScroll = true;
+
   let textIndex = 0;
   let totalText = "";
 
@@ -44,8 +46,7 @@ $(() => {
           // create empty div to receive our answer
           $('<div data-html="true" class="gen-box"></div>')
             .appendTo("#model-output")
-            .promise()
-            .done(adjustScroll(full=true));
+            .promise().done(adjustScroll());
         }
       },
       success: function (data) {
@@ -122,20 +123,22 @@ $(() => {
     }
   };
 
+  document.getElementById('output').onscroll = (e) => {
+    // console.log('output scrolled: disabling autoscroll');
+    autoScroll = false;
+    const outTop = document.getElementById('output').scrollTop;
+    const outMax = document.getElementById('output').scrollTopMax;
+    if (outTop == outMax) {
+      // console.log('back to the bottom: reenabling autoscroll');
+      autoScroll = true;
+    }
+  };
+
   function typeWrite(txt, speed=100) {
       if (textIndex < txt.length) {
-        let adjust = false;
-        let bit = txt[textIndex];
-        if (bit == '\n') {
-          // console.log('found newline');
-          bit = '<br>';
-          adjust = true;
-        }
-        $(".gen-box:last")
-          .append(bit)
-          .promise()
-          .done(() => {
-            if (adjust) adjustScroll();
+        $(".gen-box:last").append(txt[textIndex].replace('\n', '<br>'))
+          .promise().done(() => {
+            if (autoScroll) adjustScroll();
           });
         textIndex++;
         const rand = (Math.random() + .2) * speed;
@@ -190,19 +193,12 @@ $(() => {
 
 });
 
-function adjustScroll(full=false) {
+function adjustScroll() {
   let outTop = document.getElementById('output').scrollTop;
   const outMax = document.getElementById('output').scrollTopMax;
   // console.log(`scrollTop: ${outTop}, scrollHeight: ${outMax}`);
-  if (full) {
-    if (outTop < outMax) {
-      document.getElementById('output').scrollTop = outMax;
-    }
-  } else {
-    if (outTop > outMax - 21) {
-      // document.getElementById('output').scrollTop = document.getElementById('output').scrollTopMax;
-      console.log(`now scrollTop: ${outTop}, scrollHeight: ${outMax}`);
-    }
+  if (outTop < outMax) {
+    document.getElementById('output').scrollTop = outMax;
   }
 }
 

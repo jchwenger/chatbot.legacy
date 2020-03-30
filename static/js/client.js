@@ -85,10 +85,10 @@ $(() => {
 
         // type only if tab is in focus, otherwise only store the text
         if (!document.hidden && !isTyping) {
-          // console.log('document off focus');
-          isTyping = true;
+          // console.log('document in focus');
           // console.log("is now typing");
-          typeWrite(totalText);
+          isTyping = true;
+          typeWrite();
         }
 
         // make another request until the end marker is found
@@ -98,7 +98,10 @@ $(() => {
         } else {
           // do this only if found end marker
           isGenerating = false;
+          // if generation ends after typing
+          // console.log('finished generation');
           if (!document.hidden && !isTyping) {
+            // console.log('& no typing');
             enableGenerationButton();
           }
         }
@@ -119,10 +122,11 @@ $(() => {
   window.onfocus = (e) => {
     // logUnderlined("on focus again");
     if (textIndex < totalText.length) {
-      typeWrite(totalText);
+      typeWrite();
     }
   };
 
+  // if scroll at bottom of output container, enable autoscroll
   document.getElementById('output').onscroll = (e) => {
     // console.log('output scrolled: disabling autoscroll');
     autoScroll = false;
@@ -134,26 +138,29 @@ $(() => {
     }
   };
 
-  function typeWrite(txt, speed=100) {
-      if (textIndex < txt.length) {
-        $(".gen-box:last").append(txt[textIndex].replace('\n', '<br>'))
+  function typeWrite(speed=100) {
+      if (textIndex < totalText.length) {
+        $(".gen-box:last").append(totalText[textIndex].replace('\n', '<br>'))
           .promise().done(() => {
             if (autoScroll) adjustScroll();
           });
         textIndex++;
         const rand = (Math.random() + .2) * speed;
-        // console.log("char and rand", txt.charAt(textIndex), rand);
+        // console.log("char and rand", totalText.charAt(textIndex), rand);
         try {
-          setTimeout(typeWrite, rand, txt, speed);
+          setTimeout(typeWrite, rand, speed);
         } catch(e) {
+          // error caused by last step of recursion
+          // console.log(e);
         }
       } else {
         // end of typing
+        // console.log(`finished typing, text index: ${textIndex}, total length ${totalText.length}`);
         isTyping = false;
+        // if typing stops after generation
         if (!isGenerating) {
           enableGenerationButton();
         }
-        // console.log("no longer typing");
       }
     }
 

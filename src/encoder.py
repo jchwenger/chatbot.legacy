@@ -42,7 +42,7 @@ def get_pairs(word):
 class Encoder:
     # # for belly-of-the-beast-decoding, see app.py
     # def __init__(self, encoder, bpe_merges, errors='strict'):
-    def __init__(self, encoder, bpe_merges, errors='ignore'):
+    def __init__(self, encoder, bpe_merges, errors='replace'):
         self.encoder = encoder
         self.decoder = {v:k for k,v in self.encoder.items()}
         self.errors = errors # how to handle errors in decoding

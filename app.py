@@ -34,6 +34,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
+# prepare error log dir
+if not os.path.isdir("logs"): 
+    os.mkdir("logs")
+
 # https://github.com/encode/uvicorn/issues/523#issuecomment-598522664
 logger = logging.getLogger("uvicorn")
 logging.getLogger('uvicorn.access').propagate = True

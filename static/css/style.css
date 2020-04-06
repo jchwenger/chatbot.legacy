@@ -60,7 +60,7 @@ button::-moz-focus-inner {
 }
 
 .container {
-  height: calc(100% - 50px - 170px - 3px);
+  height: calc(100% - 50px - 240px - 3px);
   margin-top: 50px;
   visibility: hidden;
 }
@@ -101,7 +101,7 @@ button::-moz-focus-inner {
 .control-panel {
   visibility: visible;
   width: 100%;
-  height: 170px;
+  height: 240px;
   padding-top: 5px;
   background: white;
   position: fixed;
@@ -119,7 +119,7 @@ button::-moz-focus-inner {
 }
 
 .text-controls {
-  width: 85%;
+  width: 50%;
   padding: 0 10px;
 }
 

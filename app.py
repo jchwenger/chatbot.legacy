@@ -15,6 +15,7 @@ import asyncio
 import logging
 import pprint
 import sample
+import random
 import model
 import regex
 import json
@@ -35,7 +36,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # prepare error log dir
-if not os.path.isdir("logs"): 
+if not os.path.isdir("logs"):
     os.mkdir("logs")
 
 # https://github.com/encode/uvicorn/issues/523#issuecomment-598522664
@@ -157,18 +158,56 @@ def generate(params):
 
     # underlog("previous prefix:")
     # custom_log(new_pref)
-
-    char_name = params.get("character", "")
-    input_orig = params.get("prefix", "").strip()
     length_desired = 5
+
+    char_name = params.get("character", "").strip()
+    input_orig = params.get("prefix", "").strip()
+
+    # additional injuction to influence the network's behaviour
+    theme_injunction = params.get("theme-injunction", "").strip()
+    char_injunction = params.get("character-injunction", "").strip()
+    prefix_injunction = params.get("prefix-injunction", "").strip()
 
     # first request, we add the char name & user input
     if char_name and input_orig:
-        # custom_log("adding char and user input")
-        # underlog("user input:")
-        # custom_log(char_name)
-        # custom_log(input_orig)
-        pref = f"{new_pref}{start}{char_name}\n{input_orig}{end}"
+
+        pref = f"{new_pref}{start}{char_name}\n{input_orig}"
+
+        custom_log("adding char and user input")
+        underlog("user input:")
+        custom_log(char_name)
+        custom_log(input_orig)
+
+        if not char_injunction and (theme_injunction or prefix_injunction):
+            if theme_injunction:
+                pref += f"\n{theme_injunction}"
+            if prefix_injunction:
+                pref += f"\n{prefix_injunction}"
+            underlog("no char injunction, adding theme or prefix to input")
+            custom_log("theme-injunction:")
+            custom_log(theme_injunction)
+            custom_log("prefix-injunction:")
+            custom_log(prefix_injunction)
+
+        pref += f"{end}"
+
+        if char_injunction:
+            caps_letters = [chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]]
+            init_letter = random.choice(caps_letters)
+            if theme_injunction:
+                pref += f"<|s|>\n{theme_injunction}\n{char_injunction}\n"
+            else:
+                pref += f"<|s|>\n{char_injunction}\n"
+            if prefix_injunction:
+                pref += f"{prefix_injunction}\n"
+            pref += f"{init_letter}"
+            underlog("char injunction, adding theme or prefix to generation")
+            custom_log("theme-injunction:")
+            custom_log(theme_injunction)
+            custom_log("prefix-injunction:")
+            custom_log(prefix_injunction)
+            custom_log(f"init letter: {init_letter}")
+
     # check: new_pref gets erased by the GET reset
     elif new_pref:
         pref = new_pref
@@ -176,12 +215,13 @@ def generate(params):
     else:
         return "<|e|>"
 
-
-    # underlog("prefix:")
-    # custom_log(pref)
+    underlog("prefix:")
+    custom_log(pref)
 
     # add end of answer, store length of prefix
     end_pref = len(pref)
+    if char_injunction:
+        end_pref -= 1
 
     context_tokens = enc.encode(pref)
     l = len(context_tokens)

@@ -37,16 +37,27 @@ $(() => {
           const blather = vals.prefix.replace(/\n\n/g, "<div><br></div>").replace(/\n/g, "<div></div>");
           const prompt = `<div class="gen-box-right">${chrct}${blather}</div>`
           $(prompt).appendTo('#model-output').hide().fadeIn("slow");
+
           // make suggestions actual text if they weren't, empty prefix box
           if (!$('#character').val()) {
             $('#character').val($('#character').attr('placeholder'));
           }
           $('#prefix').val('');
           $('#prefix').attr('placeholder', '');
+
+          let charInjunc = $('#character-injunction').val()
+          if ($('#character-injunction').val()) {
+            charInjunc += "<br>";
+          }
           // create empty div to receive our answer
-          $('<div data-html="true" class="gen-box"></div>')
+          $(`<div data-html="true" class="gen-box">${charInjunc}</div>`)
             .appendTo("#model-output")
             .promise().done(adjustScroll());
+
+          $('#theme-injunction').val('');
+          $('#character-injunction').val('');
+          $('#prefix-injunction').val('');
+
         }
       },
       success: function (data) {
@@ -250,7 +261,7 @@ function getInputValues() {
 }
 
 // Make sure this code gets executed after the DOM is loaded.
-document.querySelectorAll("#prefix,#character").forEach(el => {
+document.querySelectorAll("#prefix,#character, #theme-injunction, #character-injunction, #prefix-injunction").forEach(el => {
   el.addEventListener("keyup", event => {
     if (event.key == "Enter" && event.ctrlKey) {
       document.querySelector("#generate-text").click();

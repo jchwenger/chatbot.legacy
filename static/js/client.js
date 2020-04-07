@@ -54,10 +54,21 @@ $(() => {
             .appendTo("#model-output")
             .promise().done(adjustScroll());
 
-          $('#theme-injunction').val('');
+          // if holding a value, store that in the placeholder during generation
+          if ($('#theme-injunction').val()) {
+            $('#theme-injunction').attr('placeholder', $('#theme-injunction').val());
+          }
+          if ($('#character-injunction').val()) {
+            $('#character-injunction').attr('placeholder', $('#character-injunction').val());
+          }
+          if ($('#prefix-injunction').val()) {
+            $('#prefix-injunction').attr('placeholder', $('#prefix-injunction').val());
+          }
+
+          // riddance of values so we send those only at the start of generation
+          $('#theme-injunction').val('')
           $('#character-injunction').val('');
           $('#prefix-injunction').val('');
-
         }
       },
       success: function (data) {
@@ -114,7 +125,14 @@ $(() => {
           if (!document.hidden && !isTyping) {
             // console.log('& no typing');
             enableGenerationButton();
+
+            // restore placeholders to values for the next round
+            $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
+            $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
+            $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
+
           }
+
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
@@ -171,6 +189,12 @@ $(() => {
         // if typing stops after generation
         if (!isGenerating) {
           enableGenerationButton();
+
+          // restore placeholders to values for the next round
+          $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
+          $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
+          $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
+
         }
       }
     }
@@ -184,6 +208,16 @@ $(() => {
         disableGenerationButton();
         $('#prefix').attr('placeholder', "Enfin vous l'emportez, et la faveur du Roi\nVous élève en un rang qui n'était dû qu'à moi,\nIl vous fait Gouverneur du Prince de Castille.");
         $('#model-output').text('')
+
+        // riddance of it all
+        $('#theme-injunction').attr('placeholder', '');
+        $('#character-injunction').attr('placeholder', '');
+        $('#prefix-injunction').attr('placeholder', '');
+
+        $('#theme-injunction').val('')
+        $('#character-injunction').val('');
+        $('#prefix-injunction').val('');
+
         resetTyping();
         clearTimeouts();
       },

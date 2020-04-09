@@ -25,6 +25,7 @@ $(() => {
       type: "POST",
       url: "/",
       dataType: "json",
+      contentType: "application/json",
       data: JSON.stringify(vals),
       beforeSend: function (data) {
         // character given only on form submit

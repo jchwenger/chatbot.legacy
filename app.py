@@ -77,55 +77,125 @@ custom_log("="*40)
 custom_log(" " * 17 + "NEW RUN")
 custom_log("="*40)
 
+class Model():
+    def __init__(self):
+        self.config = tf.compat.v1.ConfigProto()
+        self.config.gpu_options.allow_growth = True
+        self.config.graph_options.rewrite_options.layout_optimizer = (
+            rewriter_config_pb2.RewriterConfig.OFF
+        )
+        self.sess = tf.compat.v1.Session(config=self.config)
 
-config = tf.compat.v1.ConfigProto()
-config.gpu_options.allow_growth = True
-config.graph_options.rewrite_options.layout_optimizer = (
-    rewriter_config_pb2.RewriterConfig.OFF
-)
+        self.hparams = model.default_hparams()
+        with open("checkpoint/run1/hparams.json") as f:
+            self.hparams.override_from_dict(json.load(f))
 
-# if threads > 0:
-#     config.intra_op_parallelism_threads = threads
-#     config.inter_op_parallelism_threads = threads
+        self.context = tf.compat.v1.placeholder(tf.int32, [1, None])
+        self.length = tf.compat.v1.placeholder(tf.int32, ())
+        self.temperature = tf.compat.v1.placeholder(tf.int32, ())
 
-sess = tf.compat.v1.Session(config=config)
+        self.model = model.model(hparams=self.hparams, X=self.context)
 
-hparams = model.default_hparams()
-with open("checkpoint/run1/hparams.json") as f:
-    hparams.override_from_dict(json.load(f))
+        self.load_checkpoint("checkpoint/run1")
+        self.enc = encoder.get_encoder("run1")
 
-context = tf.compat.v1.placeholder(tf.int32, [1, None])
-output = model.model(hparams=hparams, X=context)
+        self.output = sample.sample_sequence(
+            hparams=self.hparams,
+            length=self.length,
+            start_token=None,
+            context=self.context,
+            batch_size=1,
+            temperature=self.temperature,
+            top_k=0,
+            top_p=0,
+        )
 
-ckpt = tf.train.latest_checkpoint("checkpoint/run1")
-saver = tf.compat.v1.train.Saver(allow_empty=True)
-sess.run(tf.compat.v1.global_variables_initializer())
+        # spit out all these warnrings
+        self.dummy_run()
 
-sandwich_log(f"Loading checkpoint {ckpt}")
-saver.restore(sess, ckpt)
+    def load_checkpoint(self, path="checkpoint/run1"):
+        self.ckpt = tf.train.latest_checkpoint(path)
+        self.saver = tf.compat.v1.train.Saver(allow_empty=True)
+        self.sess.run(tf.compat.v1.global_variables_initializer())
+        sandwich_log(f"Loading checkpoint {self.ckpt}")
+        self.saver.restore(self.sess, self.ckpt)
 
-enc = encoder.get_encoder("run1")
+    def run(self, context_tokens, length=5, temperature=1):
+        return self.sess.run(self.output, feed_dict={self.length: length,
+                                                     self.context: context_tokens,
+                                                     self.temperature: temperature})
 
-context = tf.compat.v1.placeholder(tf.int32, [1, None])
-length = tf.compat.v1.placeholder(tf.int32, ())
-context_tokens = enc.encode("A")
+    def dummy_run(self):
+        self.run(context_tokens=[self.enc.encode("A")], length=1)
 
-output = sample.sample_sequence(
-    hparams=hparams,
-    length=length,
-    start_token=None,
-    context=context,
-    batch_size=1,
-    temperature=1,
-    top_k=0,
-    top_p=0,
-)
+    def init_letter(self, context_tokens):
+        caps_letters = {chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]}
+        out = self.run(1 * [context_tokens], length = 1)
+        l = self.enc.decode([out[0,-1]])
+        underlog("init letter sampled from model:", level="WARNING")
+        custom_log(l, level="WARNING")
+        index = 0
+        while l[0] not in caps_letters:
+            out = self.run(1 * [context_tokens], length = 1)
+            l = self.enc.decode([out[0,-1]])
+            custom_log(f"rerunning > {l}", level="WARNING")
+            if index > 2:
+                l = random.choice('ABCDEFGHIJLMN')
+                custom_log(f"hacking > {l}", level="WARNING")
+            index += 1
+        return l
 
-out = sess.run(output, feed_dict={length: 1, context: [context_tokens]})
 
-# # for belly-of-the-beast-decoding, see encoder.py
-# sandwich_log(f"Dummy run preformed: {enc.decode(out[0])[0]}")
-sandwich_log(f"Dummy run preformed: {enc.decode(out[0])}")
+le_model = Model()
+
+# config = tf.compat.v1.ConfigProto()
+# config.gpu_options.allow_growth = True
+# config.graph_options.rewrite_options.layout_optimizer = (
+#     rewriter_config_pb2.RewriterConfig.OFF
+# )
+
+# # if threads > 0:
+# #     config.intra_op_parallelism_threads = threads
+# #     config.inter_op_parallelism_threads = threads
+
+# sess = tf.compat.v1.Session(config=config)
+
+# hparams = model.default_hparams()
+# with open("checkpoint/run1/hparams.json") as f:
+#     hparams.override_from_dict(json.load(f))
+
+# context = tf.compat.v1.placeholder(tf.int32, [1, None])
+# model = model.model(hparams=hparams, X=context)
+
+# ckpt = tf.train.latest_checkpoint("checkpoint/run1")
+# saver = tf.compat.v1.train.Saver(allow_empty=True)
+# sess.run(tf.compat.v1.global_variables_initializer())
+
+# sandwich_log(f"Loading checkpoint {ckpt}")
+# saver.restore(sess, ckpt)
+
+# enc = encoder.get_encoder("run1")
+
+# context = tf.compat.v1.placeholder(tf.int32, [1, None])
+# length = tf.compat.v1.placeholder(tf.int32, ())
+# context_tokens = enc.encode("A")
+
+# output = sample.sample_sequence(
+#     hparams=hparams,
+#     length=length,
+#     start_token=None,
+#     context=context,
+#     batch_size=1,
+#     temperature=1,
+#     top_k=0,
+#     top_p=0,
+# )
+
+# out = sess.run(output, feed_dict={length: 1, context: [context_tokens]})
+
+# # # for belly-of-the-beast-decoding, see encoder.py
+# # sandwich_log(f"Dummy run preformed: {enc.decode(out[0])[0]}")
+# sandwich_log(f"Dummy run preformed: {enc.decode(out[0])}")
 
 # find first response in gpt stream
 pref_re = regex.compile("(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL)
@@ -149,13 +219,10 @@ def generate(params):
     global generate_count
     global new_pref
     global produced
-    global hparams
+    global le_model
     global pref_re
-    global output
     global start
-    global sess
     global end
-    global enc
     global pp
     global r
 
@@ -195,8 +262,6 @@ def generate(params):
         pref += f"{end}"
 
         if char_injunction:
-            caps_letters = [chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]]
-            init_letter = random.choice(caps_letters)
             if theme_injunction:
                 pref += f"<|s|>\n{theme_injunction}\n{char_injunction}\n"
             else:
@@ -204,6 +269,7 @@ def generate(params):
             if prefix_injunction:
                 pref += f"{prefix_injunction}\n"
             end_pref_injunction = len(pref)
+            init_letter = le_model.init_letter(le_model.enc.encode(pref))
             pref += f"{init_letter}"
             underlog("char injunction, adding theme or prefix to generation", level="WARNING")
             custom_log("theme-injunction:", level="WARNING")
@@ -212,7 +278,7 @@ def generate(params):
             custom_log(prefix_injunction, level="WARNING")
             custom_log(f"init letter: {init_letter}", level="WARNING")
             end_inj_utf = pref[end_pref_injunction].encode('utf-8')
-            custom_log(f"end of prefix: {end_inj_utf}")
+            custom_log(f"end of prefix: {end_inj_utf}", level="WARNING")
 
     # check: new_pref gets erased by the GET reset
     elif new_pref:
@@ -231,7 +297,7 @@ def generate(params):
         end_pref = end_pref_injunction
 
 
-    context_tokens = enc.encode(pref)
+    context_tokens = le_model.enc.encode(pref)
     l = len(context_tokens)
     # underlog(f"current length {l}")
 
@@ -246,25 +312,24 @@ def generate(params):
         context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)
         # don't include init letter if char injunction
-        end_pref = len(enc.decode(context_tokens)) - 1 if cond \
-                   else len(enc.decode(context_tokens))
+        end_pref = len(le_model.enc.decode(context_tokens)) - len(init_letter) if cond \
+                   else len(le_model.enc.decode(context_tokens))
 
         # # for belly-of-the-beast-decoding, see encoder.py
-        # end_pref = len(enc.decode(context_tokens)[0])
+        # end_pref = len(le_model.enc.decode(context_tokens)[0])
 
         # underlog(f"exceeding {limit} total tokens in regenerating", level='WARNING')
         # custom_log(f"trimmed context length: {l}", level='WARNING')
         # custom_log(f"new string length: {end_pref}", level='WARNING')
         # custom_log(f"last pref char: {pref[end_pref-1]}", level='WARNING')
 
-    out = sess.run(
-        output, feed_dict={context: 1 * [context_tokens], length: length_desired},
-    )
 
-    pref = enc.decode(out[0])
+    out = le_model.run(1 * [context_tokens], length = length_desired)
+
+    pref = le_model.enc.decode(out[0])
 
     # # for belly-of-the-beast-decoding, see encoder.py
-    # pref, warning = enc.decode(out[0])
+    # pref, warning = le_model.enc.decode(out[0])
     # if warning > 0:
     #     underlog(f"FOUND {warning} ILLEGAL TOKENS", level='ERROR', offset="\t\t\t")
     #     custom_log(f"length sanity check:", level='ERROR', offset="\t\t\t")
@@ -282,7 +347,8 @@ def generate(params):
     l_enc = l_no_pref.encode('utf-8')
     underlog(f"returned chunk:")
     custom_log(f"{l_no_pref}")
-    custom_log(f"| utf-8: {l_enc} | tokens: {out[0,-length_desired:]}", offset="\t")
+    custom_log(f"| utf-8: {l_enc}", offset="\t")
+    custom_log(f"| tokens: {out[0,-length_desired:]}", offset="\t")
 
     m = regex.search(r, l_no_pref)
     if m:
@@ -295,7 +361,7 @@ def generate(params):
     # underlog("new prefix stored:")
     # custom_log(new_pref)
 
-    # custom_log('-'*40)
+    custom_log('-'*40)
 
     return l_no_pref
 

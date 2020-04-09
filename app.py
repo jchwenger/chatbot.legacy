@@ -139,23 +139,32 @@ class Model:
         self.run(context_tokens=[self.enc.encode("A")], length=1)
 
     def init_letter(self, context_tokens):
+        underlog("init letter sampled from model:", level="WARNING")
         caps_letters = {
             chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]
         }
         out = self.run(1 * [context_tokens], length=1)
-        l = self.enc.decode([out[0, -1]])
-        underlog("init letter sampled from model:", level="WARNING")
-        custom_log(l, level="WARNING")
+        # out_decoded = self.enc.decode(out[0])
+        # custom_log(f"all:  {out_decoded}", level="WARNING")
+        last_decoded = self.enc.decode([out[0, -1]])
+        last_utf = last_decoded.encode('utf-8')
+        custom_log(f"last: {last_decoded}", level="WARNING")
+        custom_log(f"utf8: {last_utf}", level="WARNING")
         index = 0
-        while l[0] not in caps_letters:
+        while not regex.match(r"^\p{Z}*\p{Lu}", last_decoded):
+        # while last_decoded[0] not in caps_letters:
             out = self.run(1 * [context_tokens], length=1)
-            l = self.enc.decode([out[0, -1]])
-            custom_log(f"rerunning > {l}", level="WARNING")
-            if index > 2:
-                l = random.choice("ABCDEFGHIJLMN")
-                custom_log(f"hacking > {l}", level="WARNING")
+            # out_decoded = self.enc.decode(out[0])
+            # custom_log(f"rerunning | all:  {out_decoded}", level="WARNING")
+            last_decoded = self.enc.decode([out[0, -1]])
+            last_utf = last_decoded.encode('utf-8')
+            custom_log(f"rerunning | last: {last_decoded}", level="WARNING")
+            custom_log(f"rerunning | utf8: {last_utf}", level="WARNING")
+            if index > 50:
+                last_decoded = random.choice("ABCDEFGHIJLMN")
+                custom_log(f"hacking: {last_decoded}", level="WARNING")
             index += 1
-        return l
+        return last_decoded
 
 
 le_model = Model()
@@ -232,7 +241,7 @@ def generate(params):
             else:
                 pref += f"<|s|>\n{char_injunction}\n"
             if prefix_injunction:
-                pref += f"{prefix_injunction}\n"
+                pref += f"{prefix_injunction}"
             end_pref_injunction = len(pref)
             init_letter = le_model.init_letter(le_model.enc.encode(pref))
             pref += f"{init_letter}"
@@ -254,8 +263,8 @@ def generate(params):
     else:
         return "<|e|>"
 
-    underlog("prefix:")
-    custom_log(pref)
+    # underlog("prefix:")
+    # custom_log(pref)
 
     # add end of answer, store length of prefix
     end_pref = len(pref)
@@ -306,8 +315,8 @@ def generate(params):
     #     custom_log(f"{out[0,-5:]}", level='ERROR', offset="\t\t\t")
     #     sys.exit()
 
-    # underlog(f"current pref:", level="WARNING")
-    # custom_log(pref, level="WARNING")
+    underlog(f"current pref:")
+    custom_log(pref)
 
     l_no_pref = pref[end_pref:]
     new_length = len(l_no_pref)

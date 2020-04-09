@@ -48,10 +48,13 @@ logger.setLevel(logging.DEBUG)
 # log utils
 def custom_log(x, level="INFO", offset=""):
     if level == "INFO":
+        x = x.replace("\n", "\n\033[32mINFO\033[00m:     ")
         logger.info(f"{offset}{x}")
     if level == "WARNING":
+        x = x.replace("\n", "\n\033[33mWARNING\033[00m:  ")
         logger.warning(f"{offset}{x}")
     if level == "ERROR":
+        x = x.replace("\n", "\n\033[31mERROR\033[00m:    ")
         logger.error(f"{offset}{x}")
 
 def overlog(x, level="INFO", offset=""):

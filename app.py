@@ -148,55 +148,6 @@ class Model():
 
 le_model = Model()
 
-# config = tf.compat.v1.ConfigProto()
-# config.gpu_options.allow_growth = True
-# config.graph_options.rewrite_options.layout_optimizer = (
-#     rewriter_config_pb2.RewriterConfig.OFF
-# )
-
-# # if threads > 0:
-# #     config.intra_op_parallelism_threads = threads
-# #     config.inter_op_parallelism_threads = threads
-
-# sess = tf.compat.v1.Session(config=config)
-
-# hparams = model.default_hparams()
-# with open("checkpoint/run1/hparams.json") as f:
-#     hparams.override_from_dict(json.load(f))
-
-# context = tf.compat.v1.placeholder(tf.int32, [1, None])
-# model = model.model(hparams=hparams, X=context)
-
-# ckpt = tf.train.latest_checkpoint("checkpoint/run1")
-# saver = tf.compat.v1.train.Saver(allow_empty=True)
-# sess.run(tf.compat.v1.global_variables_initializer())
-
-# sandwich_log(f"Loading checkpoint {ckpt}")
-# saver.restore(sess, ckpt)
-
-# enc = encoder.get_encoder("run1")
-
-# context = tf.compat.v1.placeholder(tf.int32, [1, None])
-# length = tf.compat.v1.placeholder(tf.int32, ())
-# context_tokens = enc.encode("A")
-
-# output = sample.sample_sequence(
-#     hparams=hparams,
-#     length=length,
-#     start_token=None,
-#     context=context,
-#     batch_size=1,
-#     temperature=1,
-#     top_k=0,
-#     top_p=0,
-# )
-
-# out = sess.run(output, feed_dict={length: 1, context: [context_tokens]})
-
-# # # for belly-of-the-beast-decoding, see encoder.py
-# # sandwich_log(f"Dummy run preformed: {enc.decode(out[0])[0]}")
-# sandwich_log(f"Dummy run preformed: {enc.decode(out[0])}")
-
 # find first response in gpt stream
 pref_re = regex.compile("(?<=<\|s\|>\n).*?(?=\n<\|e\|>)", regex.DOTALL)
 new_pref = ""

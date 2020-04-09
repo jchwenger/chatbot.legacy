@@ -127,10 +127,7 @@ $(() => {
             enableGenerationButton();
 
             // restore placeholders to values for the next round
-            $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
-            $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
-            $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
-
+            restorePlaceholders();
           }
 
         }
@@ -189,11 +186,8 @@ $(() => {
         // if typing stops after generation
         if (!isGenerating) {
           enableGenerationButton();
-
           // restore placeholders to values for the next round
-          $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
-          $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
-          $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
+          restorePlaceholders();
 
         }
       }
@@ -257,6 +251,18 @@ function adjustScroll() {
 function disableGenerationButton() {
   $('#generate-text').addClass("is-loading");
   $('#generate-text').prop("disabled", true);
+}
+
+function restorePlaceholders() {
+  if (!$('#theme-injunction').val()) {
+    $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
+  }
+  if (!$('#character-injunction').val()) {
+    $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
+  }
+  if (!$('#prefix-injunction').val()) {
+    $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
+  }
 }
 
 function enableGenerationButton() {

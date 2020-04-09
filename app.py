@@ -203,6 +203,7 @@ def generate(params):
                 pref += f"<|s|>\n{char_injunction}\n"
             if prefix_injunction:
                 pref += f"{prefix_injunction}\n"
+            end_pref_injunction = len(pref)
             pref += f"{init_letter}"
             underlog("char injunction, adding theme or prefix to generation", level="WARNING")
             custom_log("theme-injunction:", level="WARNING")
@@ -210,6 +211,8 @@ def generate(params):
             custom_log("prefix-injunction:", level="WARNING")
             custom_log(prefix_injunction, level="WARNING")
             custom_log(f"init letter: {init_letter}", level="WARNING")
+            end_inj_utf = pref[end_pref_injunction].encode('utf-8')
+            custom_log(f"end of prefix: {end_inj_utf}")
 
     # check: new_pref gets erased by the GET reset
     elif new_pref:
@@ -223,8 +226,10 @@ def generate(params):
 
     # add end of answer, store length of prefix
     end_pref = len(pref)
-    if char_injunction:
-        end_pref -= 1
+    cond = char_name and input_orig and char_injunction
+    if cond:
+        end_pref = end_pref_injunction
+
 
     context_tokens = enc.encode(pref)
     l = len(context_tokens)
@@ -240,7 +245,9 @@ def generate(params):
     if l > max_length:
         context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)
-        end_pref = len(enc.decode(context_tokens))
+        # don't include init letter if char injunction
+        end_pref = len(enc.decode(context_tokens)) - 1 if cond \
+                   else len(enc.decode(context_tokens))
 
         # # for belly-of-the-beast-decoding, see encoder.py
         # end_pref = len(enc.decode(context_tokens)[0])

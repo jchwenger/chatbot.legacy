@@ -13,11 +13,11 @@ $(() => {
 
   $('#gen-form').submit(function (e) {
     e.preventDefault();
+    resetPlaceholders();
     const vals = getInputValues();
     // console.log('vals:', vals);
     resetTyping();
     generate(vals);
-
   });
 
   function generate(vals) {
@@ -55,21 +55,8 @@ $(() => {
             .appendTo("#model-output")
             .promise().done(adjustScroll());
 
-          // if holding a value, store that in the placeholder during generation
-          if ($('#theme-injunction').val()) {
-            $('#theme-injunction').attr('placeholder', $('#theme-injunction').val());
-          }
-          if ($('#character-injunction').val()) {
-            $('#character-injunction').attr('placeholder', $('#character-injunction').val());
-          }
-          if ($('#prefix-injunction').val()) {
-            $('#prefix-injunction').attr('placeholder', $('#prefix-injunction').val());
-          }
-
           // riddance of values so we send those only at the start of generation
-          $('#theme-injunction').val('')
-          $('#character-injunction').val('');
-          $('#prefix-injunction').val('');
+          storeToPlaceholders();
         }
       },
       success: function (data) {
@@ -238,7 +225,57 @@ $(() => {
     // console.log(`reset typing, total text now ${totalText}`);
   }
 
+
 });
+
+function resetPlaceholders() {
+  // console.log('resetting placeholders');
+  // if value is empty, riddance of the placeholder
+  if (!$('#theme-injunction').val()) {
+    $('#theme-injunction').attr('placeholder', '');
+  }
+  if (!$('#character-injunction').val()) {
+    $('#character-injunction').attr('placeholder', '');
+  }
+  if (!$('#prefix-injunction').val()) {
+    $('#prefix-injunction').attr('placeholder', '');
+  }
+}
+
+function storeToPlaceholders() {
+  // console.log('storing placeholders');
+  // if holding a value, store that in the placeholder during generation
+  if ($('#theme-injunction').val()) {
+    $('#theme-injunction').attr('placeholder', $('#theme-injunction').val());
+  }
+  if ($('#character-injunction').val()) {
+    $('#character-injunction').attr('placeholder', $('#character-injunction').val());
+  }
+  if ($('#prefix-injunction').val()) {
+    $('#prefix-injunction').attr('placeholder', $('#prefix-injunction').val());
+  }
+  // and remove values
+  $('#theme-injunction').val('')
+  $('#character-injunction').val('');
+  $('#prefix-injunction').val('');
+}
+
+function restorePlaceholders() {
+  console.log('restoring placeholders');
+  if (!$('#theme-injunction').val()) {
+    $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
+  }
+  if (!$('#character-injunction').val()) {
+    $('#character-injunction').val($('#character-injunction').attr('placeholder'));
+  }
+  if (!$('#prefix-injunction').val()) {
+    $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder'));
+  }
+  // and remove placeholders
+  $('#theme-injunction').attr('placeholder', '');
+  $('#character-injunction').attr('placeholder', '');
+  $('#prefix-injunction').attr('placeholder', '');
+}
 
 function adjustScroll() {
   let outTop = document.getElementById('output').scrollTop;
@@ -252,18 +289,6 @@ function adjustScroll() {
 function disableGenerationButton() {
   $('#generate-text').addClass("is-loading");
   $('#generate-text').prop("disabled", true);
-}
-
-function restorePlaceholders() {
-  if (!$('#theme-injunction').val()) {
-    $('#theme-injunction').val($('#theme-injunction').attr('placeholder'));
-  }
-  if (!$('#character-injunction').val()) {
-    $('#character-injunction').val($('#character-injunction').attr('placeholder' ));
-  }
-  if (!$('#prefix-injunction').val()) {
-    $('#prefix-injunction').val($('#prefix-injunction').attr('placeholder' ));
-  }
 }
 
 function enableGenerationButton() {

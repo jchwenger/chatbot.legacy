@@ -43,7 +43,7 @@ $(() => {
             $('#character').val($('#character').attr('placeholder'));
           }
           $('#prefix').val('');
-          $('#prefix').attr('placeholder', '');
+          // $('#prefix').attr('placeholder', '');
 
           let charInjunc = $('#character-injunction').val()
           if ($('#character-injunction').val()) {

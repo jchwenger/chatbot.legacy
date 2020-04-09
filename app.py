@@ -176,21 +176,21 @@ def generate(params):
 
         pref = f"{new_pref}{start}{char_name}\n{input_orig}"
 
-        custom_log("adding char and user input")
-        underlog("user input:")
-        custom_log(char_name)
-        custom_log(input_orig)
+        custom_log("adding char and user input", level="WARNING")
+        underlog("user input:", level="WARNING")
+        custom_log(char_name, level="WARNING")
+        custom_log(input_orig, level="WARNING")
 
         if not char_injunction and (theme_injunction or prefix_injunction):
             if theme_injunction:
                 pref += f"\n{theme_injunction}"
             if prefix_injunction:
                 pref += f"\n{prefix_injunction}"
-            underlog("no char injunction, adding theme or prefix to input")
-            custom_log("theme-injunction:")
-            custom_log(theme_injunction)
-            custom_log("prefix-injunction:")
-            custom_log(prefix_injunction)
+            underlog("no char injunction, adding theme or prefix to input", level="WARNING")
+            custom_log("theme-injunction:", level="WARNING")
+            custom_log(theme_injunction, level="WARNING")
+            custom_log("prefix-injunction:", level="WARNING")
+            custom_log(prefix_injunction, level="WARNING")
 
         pref += f"{end}"
 
@@ -204,12 +204,12 @@ def generate(params):
             if prefix_injunction:
                 pref += f"{prefix_injunction}\n"
             pref += f"{init_letter}"
-            underlog("char injunction, adding theme or prefix to generation")
-            custom_log("theme-injunction:")
-            custom_log(theme_injunction)
-            custom_log("prefix-injunction:")
-            custom_log(prefix_injunction)
-            custom_log(f"init letter: {init_letter}")
+            underlog("char injunction, adding theme or prefix to generation", level="WARNING")
+            custom_log("theme-injunction:", level="WARNING")
+            custom_log(theme_injunction, level="WARNING")
+            custom_log("prefix-injunction:", level="WARNING")
+            custom_log(prefix_injunction, level="WARNING")
+            custom_log(f"init letter: {init_letter}", level="WARNING")
 
     # check: new_pref gets erased by the GET reset
     elif new_pref:
@@ -246,7 +246,9 @@ def generate(params):
         # end_pref = len(enc.decode(context_tokens)[0])
 
         # underlog(f"exceeding {limit} total tokens in regenerating", level='WARNING')
-        # custom_log(f"end of prefix at index {end_pref}, trimmed context length: {l}", level='WARNING')
+        # custom_log(f"trimmed context length: {l}", level='WARNING')
+        # custom_log(f"new string length: {end_pref}", level='WARNING')
+        # custom_log(f"last pref char: {pref[end_pref-1]}", level='WARNING')
 
     out = sess.run(
         output, feed_dict={context: 1 * [context_tokens], length: length_desired},
@@ -264,19 +266,20 @@ def generate(params):
     #     custom_log(f"{out[0,-5:]}", level='ERROR', offset="\t\t\t")
     #     sys.exit()
 
-    # underlog("current pref:")
-    # custom_log(pref)
+    # underlog(f"current pref:", level="WARNING")
+    # custom_log(pref, level="WARNING")
 
     l_no_pref = pref[end_pref:]
     new_length = len(l_no_pref)
 
     l_enc = l_no_pref.encode('utf-8')
+    underlog(f"returned chunk:")
     custom_log(f"{l_no_pref}")
-    custom_log(f"| utf-8: {l_enc} | tokens: {out[0,-length_desired:]}", offset="\t\t\t\t")
+    custom_log(f"| utf-8: {l_enc} | tokens: {out[0,-length_desired:]}", offset="\t")
 
     m = regex.search(r, l_no_pref)
     if m:
-        underlog("found end marker", offset='\t\t\t\t')
+        underlog("found end marker")
         end_ind = m.span()[0]
         new_pref = f"{pref[:end_pref+end_ind]}\n<|e|>"
     else:

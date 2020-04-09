@@ -41,7 +41,7 @@ if not os.path.isdir("logs"):
 
 # https://github.com/encode/uvicorn/issues/523#issuecomment-598522664
 logger = logging.getLogger("uvicorn")
-logging.getLogger('uvicorn.access').propagate = True
+logging.getLogger("uvicorn.access").propagate = True
 logger.addHandler(logging.FileHandler("logs/errors.log"))
 logger.setLevel(logging.DEBUG)
 
@@ -57,27 +57,32 @@ def custom_log(x, level="INFO", offset=""):
         x = x.replace("\n", "\n\033[31mERROR\033[00m:    ")
         logger.error(f"{offset}{x}")
 
+
 def overlog(x, level="INFO", offset=""):
     custom_log("-" * len(x), level=level, offset=offset)
     custom_log(x, level=level, offset=offset)
     custom_log(" ", level=level, offset=offset)
+
 
 def underlog(x, level="INFO", offset=""):
     custom_log(" ", level=level, offset=offset)
     custom_log(x, level=level, offset=offset)
     custom_log("-" * len(x), level=level, offset=offset)
 
+
 def sandwich_log(x, level="INFO", offset=""):
     custom_log("-" * len(x), level=level, offset=offset)
     custom_log(x, level=level, offset=offset)
     custom_log("-" * len(x), level=level, offset=offset)
 
-custom_log(" ")
-custom_log("="*40)
-custom_log(" " * 17 + "NEW RUN")
-custom_log("="*40)
 
-class Model():
+custom_log(" ")
+custom_log("=" * 40)
+custom_log(" " * 17 + "NEW RUN")
+custom_log("=" * 40)
+
+
+class Model:
     def __init__(self):
         self.config = tf.compat.v1.ConfigProto()
         self.config.gpu_options.allow_growth = True
@@ -121,26 +126,33 @@ class Model():
         self.saver.restore(self.sess, self.ckpt)
 
     def run(self, context_tokens, length=5, temperature=1):
-        return self.sess.run(self.output, feed_dict={self.length: length,
-                                                     self.context: context_tokens,
-                                                     self.temperature: temperature})
+        return self.sess.run(
+            self.output,
+            feed_dict={
+                self.length: length,
+                self.context: context_tokens,
+                self.temperature: temperature,
+            },
+        )
 
     def dummy_run(self):
         self.run(context_tokens=[self.enc.encode("A")], length=1)
 
     def init_letter(self, context_tokens):
-        caps_letters = {chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]}
-        out = self.run(1 * [context_tokens], length = 1)
-        l = self.enc.decode([out[0,-1]])
+        caps_letters = {
+            chr(i) for i in [x for x in range(65, 91)] + [192, 199, 202, 212]
+        }
+        out = self.run(1 * [context_tokens], length=1)
+        l = self.enc.decode([out[0, -1]])
         underlog("init letter sampled from model:", level="WARNING")
         custom_log(l, level="WARNING")
         index = 0
         while l[0] not in caps_letters:
-            out = self.run(1 * [context_tokens], length = 1)
-            l = self.enc.decode([out[0,-1]])
+            out = self.run(1 * [context_tokens], length=1)
+            l = self.enc.decode([out[0, -1]])
             custom_log(f"rerunning > {l}", level="WARNING")
             if index > 2:
-                l = random.choice('ABCDEFGHIJLMN')
+                l = random.choice("ABCDEFGHIJLMN")
                 custom_log(f"hacking > {l}", level="WARNING")
             index += 1
         return l
@@ -204,7 +216,9 @@ def generate(params):
                 pref += f"\n{theme_injunction}"
             if prefix_injunction:
                 pref += f"\n{prefix_injunction}"
-            underlog("no char injunction, adding theme or prefix to input", level="WARNING")
+            underlog(
+                "no char injunction, adding theme or prefix to input", level="WARNING"
+            )
             custom_log("theme-injunction:", level="WARNING")
             custom_log(theme_injunction, level="WARNING")
             custom_log("prefix-injunction:", level="WARNING")
@@ -222,13 +236,15 @@ def generate(params):
             end_pref_injunction = len(pref)
             init_letter = le_model.init_letter(le_model.enc.encode(pref))
             pref += f"{init_letter}"
-            underlog("char injunction, adding theme or prefix to generation", level="WARNING")
+            underlog(
+                "char injunction, adding theme or prefix to generation", level="WARNING"
+            )
             custom_log("theme-injunction:", level="WARNING")
             custom_log(theme_injunction, level="WARNING")
             custom_log("prefix-injunction:", level="WARNING")
             custom_log(prefix_injunction, level="WARNING")
             custom_log(f"init letter: {init_letter}", level="WARNING")
-            end_inj_utf = pref[end_pref_injunction].encode('utf-8')
+            end_inj_utf = pref[end_pref_injunction].encode("utf-8")
             custom_log(f"end of prefix: {end_inj_utf}", level="WARNING")
 
     # check: new_pref gets erased by the GET reset
@@ -247,7 +263,6 @@ def generate(params):
     if cond:
         end_pref = end_pref_injunction
 
-
     context_tokens = le_model.enc.encode(pref)
     l = len(context_tokens)
     # underlog(f"current length {l}")
@@ -263,8 +278,11 @@ def generate(params):
         context_tokens = context_tokens[-max_length:]
         l = len(context_tokens)
         # don't include init letter if char injunction
-        end_pref = len(le_model.enc.decode(context_tokens)) - len(init_letter) if cond \
-                   else len(le_model.enc.decode(context_tokens))
+        end_pref = (
+            len(le_model.enc.decode(context_tokens)) - len(init_letter)
+            if cond
+            else len(le_model.enc.decode(context_tokens))
+        )
 
         # # for belly-of-the-beast-decoding, see encoder.py
         # end_pref = len(le_model.enc.decode(context_tokens)[0])
@@ -274,8 +292,7 @@ def generate(params):
         # custom_log(f"new string length: {end_pref}", level='WARNING')
         # custom_log(f"last pref char: {pref[end_pref-1]}", level='WARNING')
 
-
-    out = le_model.run(1 * [context_tokens], length = length_desired)
+    out = le_model.run(1 * [context_tokens], length=length_desired)
 
     pref = le_model.enc.decode(out[0])
 
@@ -295,7 +312,7 @@ def generate(params):
     l_no_pref = pref[end_pref:]
     new_length = len(l_no_pref)
 
-    l_enc = l_no_pref.encode('utf-8')
+    l_enc = l_no_pref.encode("utf-8")
     underlog(f"returned chunk:")
     custom_log(f"{l_no_pref}")
     custom_log(f"| utf-8: {l_enc}", offset="\t")
@@ -312,9 +329,10 @@ def generate(params):
     # underlog("new prefix stored:")
     # custom_log(new_pref)
 
-    custom_log('-'*40)
+    custom_log("-" * 40)
 
     return l_no_pref
+
 
 @app.route("/debug", methods=["GET"])
 async def debug(request):
@@ -323,6 +341,7 @@ async def debug(request):
         return FileResponse(filename)
     else:
         return PlainTextResponse("No error logs found")
+
 
 @app.route("/", methods=["GET", "HEAD", "POST"])
 async def homepage(request):
@@ -354,13 +373,7 @@ async def homepage(request):
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="localhost",
-        port=int(8080),
-        root_path="/",
-        log_level='debug'
-    )
+    uvicorn.run(app, host="localhost", port=int(8080), root_path="/", log_level="debug")
 
 # if __name__ == "__main__":
 #     uvicorn.run(
@@ -368,5 +381,5 @@ if __name__ == "__main__":
 #         host="0.0.0.0",
 #         port=int(os.environ.get("PORT", 8080)),
 #         root_path="***Cloud Run web address***",
-#         log_level='debug'
+#         log_level="debug",
 #     )

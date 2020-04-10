@@ -1,7 +1,7 @@
 $(() => {
 
   const regexStart = /<\|s\|*\>*\n*|<*\|*s\|>\n*/g;
-  const regexEnd = /\n<\|e\|*\>*|\n*<*\|*e\|>/g;
+  const regexEnd = /\n<\|*e*\|*\>*|\n*<*\|*e*\|*>/g;
   const regexElse = /<\|*|\|*>/;
 
   let isTyping = false;

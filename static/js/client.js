@@ -15,7 +15,11 @@ $(() => {
     e.preventDefault();
     resetPlaceholders();
     const vals = getInputValues();
-    // console.log('vals:', vals);
+    // if text box empyt add dots
+    if (vals.prefix === "") {
+      vals.prefix = "...";
+    }
+    console.log('vals:', vals);
     resetTyping();
     generate(vals);
   });
@@ -44,7 +48,7 @@ $(() => {
             $('#character').val($('#character').attr('placeholder'));
           }
           $('#prefix').val('');
-          // $('#prefix').attr('placeholder', '');
+          $('#prefix').attr('placeholder', '');
 
           let charInjunc = $('#character-injunction').val()
           if ($('#character-injunction').val()) {
